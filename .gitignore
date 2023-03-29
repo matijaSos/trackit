@@ -1,0 +1,6 @@
+*/.wasp/
+*/.env.server
+*/.env.client
+*/.DS_Store
+.DS_Store
+*/migrations
