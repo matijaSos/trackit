@@ -24,15 +24,16 @@ app SaaSTemplate {
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
-      // google: { // Guide for setting up Auth via Google https://wasp-lang.dev/docs/auth/social-auth/overview
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js",
-      //   configFn: import { config } from "@server/auth/google.js",
-      // },
+       gitHub: {},
+       google: {
+         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js",
+         configFn: import { config } from "@server/auth/google.js",
+       },
        email: {
          fromField: {
-           name: "Open SaaS App",
+           name: "TrackIt",
            // make sure this address is the same you registered your SendGrid or MailGun account with!
-           email: "me@example.com" 
+           email: "me@trackit.sh" 
          },
          emailVerification: {
            clientRoute: EmailVerificationRoute,

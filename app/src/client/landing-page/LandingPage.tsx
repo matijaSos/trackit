@@ -25,7 +25,7 @@ export default function LandingPage() {
   const { data: user, isLoading: isUserLoading } = useAuth();
 
   const NavLogo = () => (
-    <img className='h-8 w-8' src={logo} alt='Your SaaS App' />
+    <img className='h-8 w-8' src={logo} alt='Track It' />
   );
 
   return (
@@ -43,7 +43,7 @@ export default function LandingPage() {
             >
               <NavLogo />
               <span className='ml-2 text-sm font-semibold leading-6 dark:text-white'>
-                Your Saas
+                Track It
               </span>
             </a>
           </div>
@@ -169,10 +169,10 @@ export default function LandingPage() {
             <div className='mx-auto max-w-8xl px-6 lg:px-8'>
               <div className='lg:mb-18 mx-auto max-w-3xl text-center'>
                 <h1 className='text-4xl font-bold text-gray-900 sm:text-6xl dark:text-white'>
-                  Open Toggl ⏰
+                  Reviewing PRs much? ⏰
                 </h1>
                 <p className='mt-6 mx-auto max-w-2xl text-lg leading-8 text-gray-600 dark:text-white'>
-                  Because why woudln't it be open?
+                  An open source time tracker for developers.
                 </p>
                 <div className='mt-10 flex items-center justify-center gap-x-6'>
                   <a
