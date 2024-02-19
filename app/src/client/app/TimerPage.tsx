@@ -9,31 +9,80 @@ import { Task } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
 
-export default function DemoAppPage() {
+export default function TimerPage() {
+  const [timeEntry, setTimeEntry] = useState('')
+
   return (
     <div className='py-10 lg:mt-10'>
-      <div className='mx-auto max-w-7xl px-6 lg:px-8'>
-        <div className='mx-auto max-w-4xl text-center'>
-          <h2 className='mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl dark:text-white'>
-            Track It app ⏰
-          </h2>
-        </div>
-        <p className='mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 dark:text-white'>
-          I yet have to implement it. But this is a nice subtitle in the meawhile.
-        </p>
-        {/* begin AI-powered Todo List */}
-        {/*
-        <div className='my-8 border rounded-3xl border-gray-900/10'>
-          <div className='sm:w-[90%] md:w-[70%] lg:w-[50%] py-10 px-6 mx-auto my-8 space-y-10'>
-            <NewTaskForm handleCreateTask={createTask} />
-          </div>
-        </div>
-        */}
-        {/* end AI-powered Todo List */}
-      </div>
+
+      {/* Outer wrapper of the timer bar */}
+      <div
+        className={`
+          px-6 lg:px-8
+          bg-amber-100 shadow-lg
+          flex flex-col
+        `}
+      >
+        {/* Holds all elements of the timer bar */}
+        <div
+          className={`flex flex-row items-center basis-[84px]`}
+        >
+          {/* Time entry input */}
+          <div
+            className={`
+              h-[70px] 
+              flex flex-row grow items-center
+            `}
+          >
+            <input
+              className={`
+                w-full bg-transparent mr-2
+                border-0 focus:ring-0
+                text-lg font-semibold
+              `}
+              placeholder='What are you hacking on?'
+              value={timeEntry}
+              onChange={(e) => { e.preventDefault; setTimeEntry(e.target.value) }}
+            />
+          </div> {/* EOF time entry input */}
+
+          {/* Time elapsed + start/stop button */}
+          <div
+            className={`
+              flex flex-row
+              items-center justify-between
+            `}
+          >
+            <div
+              className={`
+                text-lg font-semibold text-[#827089]
+              `}
+            >
+              <span>0:00:00</span>
+            </div>
+            <div className={`ml-2.5 flex flex-row items-center`}>
+              <button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+                  <g fill="none" fill-rule="evenodd">
+                    <rect width="36" height="36" fill="#bf9900" rx="18"></rect>
+                    <path fill="#FCFCFC" d="M13 11.994c0-1.101.773-1.553 1.745-.997l10.51 6.005c.964.55.972 1.439 0 1.994l-10.51 6.007c-.964.55-1.745.102-1.745-.997V11.994z"></path>
+                  </g>
+                </svg>
+              </button>
+            </div>
+          </div> {/* EOF time elapsed + start/stop button */}
+
+        </div> {/* EOF timer bar container */}
+      </div> {/* EOF outer wrapper */}
+
     </div>
   );
 }
+
+
+
+
+
 
 type TodoProps = Pick<Task, 'id' | 'isDone' | 'description' | 'time'>;
 
@@ -69,9 +118,8 @@ function Todo({ id, isDone, description, time }: TodoProps) {
             onChange={handleCheckboxChange}
           />
           <span
-            className={`text-slate-600 ${
-              isDone ? 'line-through text-slate-500' : ''
-            }`}
+            className={`text-slate-600 ${isDone ? 'line-through text-slate-500' : ''
+              }`}
           >
             {description}
           </span>
@@ -82,16 +130,14 @@ function Todo({ id, isDone, description, time }: TodoProps) {
             type='number'
             min={0.5}
             step={0.5}
-            className={`w-18 h-8 text-center text-slate-600 text-xs rounded border border-gray-200 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-purple-300 focus:ring-opacity-50 ${
-              isDone && 'pointer-events-none opacity-50'
-            }`}
+            className={`w-18 h-8 text-center text-slate-600 text-xs rounded border border-gray-200 focus:outline-none focus:border-transparent focus:ring-2 focus:ring-purple-300 focus:ring-opacity-50 ${isDone && 'pointer-events-none opacity-50'
+              }`}
             value={time}
             onChange={handleTimeChange}
           />
           <span
-            className={`italic text-slate-600 text-xs ${
-              isDone ? 'text-slate-500' : ''
-            }`}
+            className={`italic text-slate-600 text-xs ${isDone ? 'text-slate-500' : ''
+              }`}
           >
             hrs
           </span>
@@ -255,13 +301,12 @@ function TaskTable({ schedule }: { schedule: any[] }) {
           <thead>
             <tr>
               <th
-                className={`flex items-center justify-between gap-5 py-4 px-3 text-slate-800 border rounded-md border-slate-200 ${
-                  task.priority === 'high'
-                    ? 'bg-red-50'
-                    : task.priority === 'low'
+                className={`flex items-center justify-between gap-5 py-4 px-3 text-slate-800 border rounded-md border-slate-200 ${task.priority === 'high'
+                  ? 'bg-red-50'
+                  : task.priority === 'low'
                     ? 'bg-green-50'
                     : 'bg-yellow-50'
-                }`}
+                  }`}
               >
                 <span>{task.name}</span>
                 <span className='opacity-70 text-xs font-medium italic'>
@@ -311,9 +356,8 @@ function Subtask({ description, time }: { description: string; time: number }) {
     if (time === 0) return 0;
     const hours = Math.floor(time);
     const minutes = Math.round((time - hours) * 60);
-    return `${hours > 0 ? hours + 'hr' : ''} ${
-      minutes > 0 ? minutes + 'min' : ''
-    }`;
+    return `${hours > 0 ? hours + 'hr' : ''} ${minutes > 0 ? minutes + 'min' : ''
+      }`;
   };
 
   const minutes = useMemo(() => convertHrsToMinutes(time), [time]);
@@ -327,16 +371,14 @@ function Subtask({ description, time }: { description: string; time: number }) {
         onChange={(e) => setIsDone(e.currentTarget.checked)}
       />
       <span
-        className={`text-slate-600 ${
-          isDone ? 'line-through text-slate-500 opacity-50' : ''
-        }`}
+        className={`text-slate-600 ${isDone ? 'line-through text-slate-500 opacity-50' : ''
+          }`}
       >
         {description}
       </span>
       <span
-        className={`text-slate-600 ${
-          isDone ? 'line-through text-slate-500 opacity-50' : ''
-        }`}
+        className={`text-slate-600 ${isDone ? 'line-through text-slate-500 opacity-50' : ''
+          }`}
       >
         {minutes}
       </span>

@@ -1,5 +1,5 @@
 import { Link } from '@wasp/router';
-import { MdOutlineSpaceDashboard } from 'react-icons/md';
+import { TiStopwatch } from 'react-icons/ti';
 import { TfiDashboard } from 'react-icons/tfi';
 import logout from '@wasp/auth/logout';
 import type { User } from '@wasp/entities';
@@ -27,11 +27,11 @@ export const UserMenuItems = ({
         {path === '/' || path === '/admin' ? (
           <li>
             <Link
-              to='/demo-app'
+              to='/timer'
               className='flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-yellow-500'
             >
-              <MdOutlineSpaceDashboard size='1.1rem' />
-              AI Scheduler (Demo App)
+              <TiStopwatch size='1.1rem' />
+              Timer
             </Link>
           </li>
         ) : null}

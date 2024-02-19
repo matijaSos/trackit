@@ -236,10 +236,10 @@ page SignupPage {
    component: import { EmailVerification } from "@client/auth/EmailVerification",
  }
 
-route DemoAppRoute { path: "/demo-app", to: DemoAppPage }
-page DemoAppPage {
+route TimerRoute { path: "/timer", to: TimerPage }
+page TimerPage {
   authRequired: true,
-  component: import DemoAppPage from "@client/app/DemoAppPage"
+  component: import TimerPage from "@client/app/TimerPage"
 }
 
 route PricingPageRoute { path: "/pricing", to: PricingPage }
