@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import generateGptResponse from '@wasp/actions/generateGptResponse';
 import deleteTask from '@wasp/actions/deleteTask';
 import updateTask from '@wasp/actions/updateTask';
@@ -8,9 +8,38 @@ import getAllTasksByUser from '@wasp/queries/getAllTasksByUser';
 import { Task } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
+import { start } from 'repl';
 
 export default function TimerPage() {
-  const [timeEntry, setTimeEntry] = useState('')
+  const [timeEntryDescription, setTimeEntryDescription] = useState('')
+
+  // Stopwatch
+  const [isTimerOn, setIsTimerOn] = useState(false)
+  const [startTime, setStartTime] = useState<number | null>(null)
+  const [now, setNow] = useState<number | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+
+  function handleStopwatchButtonClicked() {
+    if (!isTimerOn) { // Start
+      console.log('started!')
+      setStartTime(Date.now())
+      setNow(Date.now())
+
+      clearInterval(intervalRef.current) // TODO(matija): I don't need this?
+      intervalRef.current = setInterval(() => {
+        setNow(Date.now())
+      })
+
+    } else { // Stop
+      clearInterval(intervalRef.current)
+    }
+    setIsTimerOn(prevValue => !prevValue)
+  }
+
+  let timeElapsed = 0
+  if (startTime != null && now != null) {
+    timeElapsed = (now - startTime) / 1000
+  }
 
   return (
     <div className='py-10 lg:mt-10'>
@@ -41,8 +70,8 @@ export default function TimerPage() {
                 text-lg font-semibold
               `}
               placeholder='What are you hacking on?'
-              value={timeEntry}
-              onChange={(e) => { e.preventDefault; setTimeEntry(e.target.value) }}
+              value={timeEntryDescription}
+              onChange={(e) => { e.preventDefault; setTimeEntryDescription(e.target.value) }}
             />
           </div> {/* EOF time entry input */}
 
@@ -53,20 +82,23 @@ export default function TimerPage() {
               items-center justify-between
             `}
           >
+            {/* Elapsed time display */}
             <div
               className={`
                 text-lg font-semibold text-[#827089]
               `}
             >
-              <span>0:00:00</span>
-            </div>
+              <span>{timeElapsed.toFixed(3)}</span>
+            </div> {/* EOF elapsed time display */}
+
+            {/* Start/stop button */}
             <div className={`ml-2.5 flex flex-row items-center`}>
-              <button>
+              <button onClick={handleStopwatchButtonClicked}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="36" height="36" viewBox="0 0 36 36"
                 >
-                  <g fill="none" fill-rule="evenodd">
+                  <g fill="none" fillRule="evenodd">
                     <rect
                       className={`
                         fill-yellow-500 hover:fill-yellow-600
@@ -79,7 +111,7 @@ export default function TimerPage() {
                   </g>
                 </svg>
               </button>
-            </div>
+            </div> {/* EOF start/stop button */}
           </div> {/* EOF time elapsed + start/stop button */}
 
         </div> {/* EOF timer bar container */}
