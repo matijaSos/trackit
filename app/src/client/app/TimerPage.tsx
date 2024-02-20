@@ -8,6 +8,7 @@ import getAllTasksByUser from '@wasp/queries/getAllTasksByUser';
 import { Task } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
+import { DateTime, Duration } from 'luxon';
 import { start } from 'repl';
 
 export default function TimerPage() {
@@ -32,13 +33,20 @@ export default function TimerPage() {
 
     } else { // Stop
       clearInterval(intervalRef.current)
+      setStartTime(null)
+      setNow(null)
     }
     setIsTimerOn(prevValue => !prevValue)
   }
 
-  let timeElapsed = 0
+  // TODO(matija): tried to create Duration object directly but had some type errors.
+  let timeElapsedFormatted = '00:00:00'
   if (startTime != null && now != null) {
-    timeElapsed = (now - startTime) / 1000
+    const dtStart = DateTime.fromMillis(startTime)
+    const dtNow = DateTime.fromMillis(now)
+
+    const timeElapsed = dtNow.diff(dtStart)
+    timeElapsedFormatted = timeElapsed.toFormat('hh:mm:ss')
   }
 
   return (
@@ -88,7 +96,7 @@ export default function TimerPage() {
                 text-lg font-semibold text-[#827089]
               `}
             >
-              <span>{timeElapsed.toFixed(3)}</span>
+              <span>{timeElapsedFormatted}</span>
             </div> {/* EOF elapsed time display */}
 
             {/* Start/stop button */}
