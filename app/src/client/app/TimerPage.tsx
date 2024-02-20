@@ -62,9 +62,19 @@ export default function TimerPage() {
             </div>
             <div className={`ml-2.5 flex flex-row items-center`}>
               <button>
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="36" height="36" viewBox="0 0 36 36"
+                >
                   <g fill="none" fill-rule="evenodd">
-                    <rect width="36" height="36" fill="#bf9900" rx="18"></rect>
+                    <rect
+                      className={`
+                        fill-yellow-500 hover:fill-yellow-600
+                        transition duration-200 ease-out
+                      `}
+                      width="36" height="36" rx="18"
+                    >
+                    </rect>
                     <path fill="#FCFCFC" d="M13 11.994c0-1.101.773-1.553 1.745-.997l10.51 6.005c.964.55.972 1.439 0 1.994l-10.51 6.007c-.964.55-1.745.102-1.745-.997V11.994z"></path>
                   </g>
                 </svg>
