@@ -49,7 +49,7 @@ app SaaSTemplate {
       additionalFields: import setAdditionalUserFields from "@server/auth/setAdditionalUserFields.js",
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/demo-app",
+    onAuthSucceededRedirectTo: "/timer",
   },
   db: { 
     system: PostgreSQL,
