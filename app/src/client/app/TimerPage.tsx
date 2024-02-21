@@ -3,6 +3,9 @@ import generateGptResponse from '@wasp/actions/generateGptResponse';
 import deleteTask from '@wasp/actions/deleteTask';
 import updateTask from '@wasp/actions/updateTask';
 import createTask from '@wasp/actions/createTask';
+
+import createTimeEntry from '@wasp/actions/createTimeEntry';
+
 import { useQuery } from '@wasp/queries';
 import getAllTasksByUser from '@wasp/queries/getAllTasksByUser';
 import { Task } from '@wasp/entities';
@@ -12,7 +15,7 @@ import { DateTime, Duration } from 'luxon';
 import { start } from 'repl';
 
 export default function TimerPage() {
-  const [timeEntryDescription, setTimeEntryDescription] = useState('')
+  const [description, setDescription] = useState('')
 
   // Stopwatch
   const [isTimerOn, setIsTimerOn] = useState(false)
@@ -20,10 +23,11 @@ export default function TimerPage() {
   const [now, setNow] = useState<number | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval>>()
 
-  function handleStopwatchButtonClicked() {
+  async function handleStopwatchButtonClicked() {
     if (!isTimerOn) { // Start
-      console.log('started!')
-      setStartTime(Date.now())
+      const startMoment = new Date()
+
+      setStartTime(startMoment.getTime())
       setNow(Date.now())
 
       clearInterval(intervalRef.current) // TODO(matija): I don't need this?
@@ -31,10 +35,19 @@ export default function TimerPage() {
         setNow(Date.now())
       })
 
+      try {
+        await createTimeEntry({ description, start: startMoment })
+      } catch (err: any) {
+        window.alert('Error: ' + (err.message || 'Something went wrong'))
+      }
+
     } else { // Stop
       clearInterval(intervalRef.current)
       setStartTime(null)
       setNow(null)
+      setDescription('')
+
+      // TODO(matija): update time entry in the database with the stop time.
     }
     setIsTimerOn(prevValue => !prevValue)
   }
@@ -78,8 +91,8 @@ export default function TimerPage() {
                 text-lg font-semibold
               `}
               placeholder='What are you hacking on?'
-              value={timeEntryDescription}
-              onChange={(e) => { e.preventDefault; setTimeEntryDescription(e.target.value) }}
+              value={description}
+              onChange={(e) => { e.preventDefault; setDescription(e.target.value) }}
             />
           </div> {/* EOF time entry input */}
 
@@ -102,7 +115,7 @@ export default function TimerPage() {
             {/* Start/stop button */}
             <div className={`ml-2.5 flex flex-row items-center`}>
               <button onClick={handleStopwatchButtonClicked}>
-                { isTimerOn ? <TimerButtonStop /> : <TimerButtonStart />}
+                {isTimerOn ? <TimerButtonStop /> : <TimerButtonStart />}
               </button>
             </div> {/* EOF start/stop button */}
           </div> {/* EOF time elapsed + start/stop button */}

@@ -118,6 +118,7 @@ entity User {=psl
   gptResponses              GptResponse[]
   externalAuthAssociations  SocialLogin[]
   contactFormMessages       ContactFormMessage[]     
+  timeEntries               TimeEntry[]
   tasks                     Task[]
   files                     File[]
 psl=}
@@ -131,6 +132,23 @@ entity SocialLogin {=psl
   createdAt                 DateTime        @default(now())
   @@unique([provider, providerId, userId])
 psl=}
+
+entity TimeEntry {=psl
+  id                        String          @id @default(uuid())
+  description               String
+  start                     DateTime
+  stop                      DateTime?
+  user                      User            @relation(fields: [userId], references: [id])
+  userId                    Int
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+psl=}
+
+
+
+
+
+/* Open SaaS stuff. */
 
 entity GptResponse {=psl
   id                        String          @id @default(uuid())
@@ -336,6 +354,11 @@ page AdminUIButtonsPage {
 action generateGptResponse {
   fn: import { generateGptResponse } from "@server/actions.js",
   entities: [User, Task, GptResponse]
+}
+
+action createTimeEntry {
+  fn: import { createTimeEntry } from "@server/actions.js",
+  entities: [TimeEntry]
 }
 
 action createTask {
