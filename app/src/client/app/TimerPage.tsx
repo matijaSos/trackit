@@ -96,28 +96,13 @@ export default function TimerPage() {
                 text-lg font-semibold text-[#827089]
               `}
             >
-              <span>{timeElapsedFormatted}</span>
+              <span className='tabular-nums'>{timeElapsedFormatted}</span>
             </div> {/* EOF elapsed time display */}
 
             {/* Start/stop button */}
             <div className={`ml-2.5 flex flex-row items-center`}>
               <button onClick={handleStopwatchButtonClicked}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="36" height="36" viewBox="0 0 36 36"
-                >
-                  <g fill="none" fillRule="evenodd">
-                    <rect
-                      className={`
-                        fill-yellow-500 hover:fill-yellow-600
-                        transition duration-200 ease-out
-                      `}
-                      width="36" height="36" rx="18"
-                    >
-                    </rect>
-                    <path fill="#FCFCFC" d="M13 11.994c0-1.101.773-1.553 1.745-.997l10.51 6.005c.964.55.972 1.439 0 1.994l-10.51 6.007c-.964.55-1.745.102-1.745-.997V11.994z"></path>
-                  </g>
-                </svg>
+                { isTimerOn ? <TimerButtonStop /> : <TimerButtonStart />}
               </button>
             </div> {/* EOF start/stop button */}
           </div> {/* EOF time elapsed + start/stop button */}
@@ -129,8 +114,47 @@ export default function TimerPage() {
   );
 }
 
+function TimerButtonStart() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="36" height="36" viewBox="0 0 36 36"
+    >
+      <g
+        fill="none"
+        fillRule="evenodd"
+        className={`
+          fill-yellow-500 hover:fill-yellow-600
+          transition duration-200 ease-out
+        `}
+      >
+        <rect
+          width="36" height="36" rx="18"
+        >
+        </rect>
+        <path fill="#FCFCFC" d="M13 11.994c0-1.101.773-1.553 1.745-.997l10.51 6.005c.964.55.972 1.439 0 1.994l-10.51 6.007c-.964.55-1.745.102-1.745-.997V11.994z"></path>
+      </g>
+    </svg>
+  )
+}
 
-
+function TimerButtonStop() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+      <g
+        fill="none"
+        fillRule="evenodd"
+        className={`
+          fill-orange-500 hover:fill-orange-600
+          transition duration-200 ease-out
+        `}
+      >
+        <rect width="36" height="36" rx="18"></rect>
+        <rect width="14" height="14" x="11" y="11" fill="#FCFCFC" rx="1.5"></rect>
+      </g>
+    </svg>
+  )
+}
 
 
 
