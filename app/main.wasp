@@ -411,6 +411,14 @@ query getGptResponses {
   entities: [User, GptResponse]
 }
 
+query getAllTimeEntriesByUser {
+  fn: import { getAllTimeEntriesByUser } from "@server/queries.js",
+  entities: [TimeEntry]
+}
+
+
+// -- OS stuff
+
 query getAllTasksByUser {
   fn: import { getAllTasksByUser } from "@server/queries.js",
   entities: [Task]

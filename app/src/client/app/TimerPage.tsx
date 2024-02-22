@@ -8,6 +8,7 @@ import createTask from '@wasp/actions/createTask';
 
 import createTimeEntry from '@wasp/actions/createTimeEntry';
 import updateTimeEntry from '@wasp/actions/updateTimeEntry';
+import getAllTimeEntriesByUser from '@wasp/queries/getAllTimeEntriesByUser';
 
 import { useQuery } from '@wasp/queries';
 import getAllTasksByUser from '@wasp/queries/getAllTasksByUser';
@@ -18,6 +19,10 @@ import { DateTime, Duration } from 'luxon';
 import { start } from 'repl';
 
 export default function TimerPage() {
+  const { data: timeEntries, isLoading: isTimeEntriesLoading } =
+    useQuery(getAllTimeEntriesByUser);
+
+
   // TODO(matija): check this from the db, set the state accordingly if not null.
   const runningTimeEntry = useRef<TimeEntry | null>(null)
 
@@ -59,7 +64,7 @@ export default function TimerPage() {
 
       // Update time entry in the database with the stop time.
       try {
-        runningTimeEntry.current = await updateTimeEntry({id: runningTimeEntry.current?.id, stop: stopMoment})
+        runningTimeEntry.current = await updateTimeEntry({ id: runningTimeEntry.current?.id, stop: stopMoment })
       } catch (err: any) {
         window.alert('Error: ' + (err.message || 'Something went wrong'))
       }
@@ -136,10 +141,56 @@ export default function TimerPage() {
           </div> {/* EOF time elapsed + start/stop button */}
 
         </div> {/* EOF timer bar container */}
-      </div> {/* EOF outer wrapper */}
+      </div> {/* EOF outer wrapper of the timer bar */}
 
-    </div>
+      {/* Time entries */}
+      <div>
+        {isTimeEntriesLoading && <div>Loading stuff...</div>}
+        {timeEntries && timeEntries.length > 0 ? (
+          <div className={`mt-8`}>
+            {timeEntries.map((timeEntry: TimeEntry) => (
+              <TimeEntryAsRow timeEntry={timeEntry} />
+            ))}
+          </div>
+        ) : (
+          <div className='text-gray-600 text-center'>No entries yet!</div>
+        )}
+
+      </div> {/* EOF time entries */}
+
+    </div >
   );
+}
+
+function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
+  const start = DateTime.fromJSDate(timeEntry.start)
+
+  let stopMark = 'n/a'
+  let durationMark = 'n/a'
+  if (timeEntry.stop) {
+    const stop = DateTime.fromJSDate(timeEntry.stop)
+
+    stopMark = stop.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
+    durationMark = stop.diff(start).toFormat('hh:mm:ss')
+  }
+
+  return (
+    <div
+      className={`
+        flex flex-row justify-between
+        px-4 py-4 border-b
+      `}
+    >
+      <div>{timeEntry.description}</div>
+      <div className='flex flex-row gap-4'>
+        <div className='text-stone-500'>
+          {start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })} - {stopMark}
+        </div>
+        <div>{durationMark}</div>
+      </div>
+    </div>
+  )
+
 }
 
 function TimerButtonStart() {
