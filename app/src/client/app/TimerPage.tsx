@@ -1,20 +1,26 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import generateGptResponse from '@wasp/actions/generateGptResponse';
+
+// TODO(matija): old stuff, remove it
 import deleteTask from '@wasp/actions/deleteTask';
 import updateTask from '@wasp/actions/updateTask';
 import createTask from '@wasp/actions/createTask';
 
 import createTimeEntry from '@wasp/actions/createTimeEntry';
+import updateTimeEntry from '@wasp/actions/updateTimeEntry';
 
 import { useQuery } from '@wasp/queries';
 import getAllTasksByUser from '@wasp/queries/getAllTasksByUser';
-import { Task } from '@wasp/entities';
+import { Task, TimeEntry } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
 import { DateTime, Duration } from 'luxon';
 import { start } from 'repl';
 
 export default function TimerPage() {
+  // TODO(matija): check this from the db, set the state accordingly if not null.
+  const runningTimeEntry = useRef<TimeEntry | null>(null)
+
   const [description, setDescription] = useState('')
 
   // Stopwatch
@@ -36,18 +42,27 @@ export default function TimerPage() {
       })
 
       try {
-        await createTimeEntry({ description, start: startMoment })
+        runningTimeEntry.current = await createTimeEntry({ description, start: startMoment })
       } catch (err: any) {
         window.alert('Error: ' + (err.message || 'Something went wrong'))
       }
 
     } else { // Stop
+      // TODO(matija): should we check that now is not null?
+      const stopMoment = new Date(now!)
+
+      // Reset timer.
       clearInterval(intervalRef.current)
       setStartTime(null)
       setNow(null)
       setDescription('')
 
-      // TODO(matija): update time entry in the database with the stop time.
+      // Update time entry in the database with the stop time.
+      try {
+        runningTimeEntry.current = await updateTimeEntry({id: runningTimeEntry.current?.id, stop: stopMoment})
+      } catch (err: any) {
+        window.alert('Error: ' + (err.message || 'Something went wrong'))
+      }
     }
     setIsTimerOn(prevValue => !prevValue)
   }

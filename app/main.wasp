@@ -361,6 +361,13 @@ action createTimeEntry {
   entities: [TimeEntry]
 }
 
+action updateTimeEntry {
+  fn: import { updateTimeEntry } from "@server/actions.js",
+  entities: [TimeEntry]
+}
+
+
+
 action createTask {
   fn: import { createTask } from "@server/actions.js",
   entities: [Task]
