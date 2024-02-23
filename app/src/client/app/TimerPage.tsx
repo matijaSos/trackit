@@ -22,8 +22,8 @@ export default function TimerPage() {
   const { data: timeEntries, isLoading: isTimeEntriesLoading } =
     useQuery(getAllTimeEntriesByUser);
 
-
   // TODO(matija): check this from the db, set the state accordingly if not null.
+  // TODO(matija): store id only, that's enough?
   const runningTimeEntry = useRef<TimeEntry | null>(null)
 
   const [description, setDescription] = useState('')
@@ -34,17 +34,35 @@ export default function TimerPage() {
   const [now, setNow] = useState<number | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval>>()
 
-  async function handleStopwatchButtonClicked() {
-    if (!isTimerOn) { // Start
-      const startMoment = new Date()
+  useEffect(() => {
+    // See if there is a time entry without a stop time. If there is more than one,
+    // throw an error.
+    const runningTimeEntries = timeEntries?.filter(t => t.stop === null)
+    if (runningTimeEntries && runningTimeEntries.length > 1) {
+      window.alert('This should never happen - you have more than one time entry without stop time.')
+    }
+    if (runningTimeEntries && runningTimeEntries.length === 1) {
+      const rte = runningTimeEntries[0]
+      console.log('I have a running time entry!')
 
-      setStartTime(startMoment.getTime())
-      setNow(Date.now())
+      // Recreate local state from the db data.
+      setIsTimerOn(true)
+      setStartTime(rte.start.getTime())
+      setDescription(rte.description)
+      runningTimeEntry.current = rte
 
+      // TODO(matija): duplication
       clearInterval(intervalRef.current) // TODO(matija): I don't need this?
       intervalRef.current = setInterval(() => {
         setNow(Date.now())
       })
+
+    }
+  }, [timeEntries])
+
+  async function handleStopwatchButtonClicked() {
+    if (!isTimerOn) { // Start
+      const startMoment = new Date()
 
       try {
         runningTimeEntry.current = await createTimeEntry({ description, start: startMoment })
@@ -56,21 +74,31 @@ export default function TimerPage() {
       // TODO(matija): should we check that now is not null?
       const stopMoment = new Date(now!)
 
-      // Reset timer.
-      clearInterval(intervalRef.current)
-      setStartTime(null)
-      setNow(null)
-      setDescription('')
-
       // Update time entry in the database with the stop time.
       try {
-        runningTimeEntry.current = await updateTimeEntry({ id: runningTimeEntry.current?.id, stop: stopMoment })
+        await updateTimeEntry({ id: runningTimeEntry.current?.id, stop: stopMoment })
+
+        // Reset timer.
+        clearInterval(intervalRef.current)
+        setStartTime(null)
+        setNow(null)
+        setDescription('')
+        runningTimeEntry.current = null
+
       } catch (err: any) {
         window.alert('Error: ' + (err.message || 'Something went wrong'))
       }
     }
     setIsTimerOn(prevValue => !prevValue)
   }
+
+  // Get time entries that have a stop time.
+  const endedTimeEntries = useMemo(
+    () => timeEntries?.filter(t => t.stop !== null),
+    [timeEntries]
+  )
+
+  //timeEntries?.filter(t => t.stop !== null)
 
   // TODO(matija): tried to create Duration object directly but had some type errors.
   let timeElapsedFormatted = '00:00:00'
@@ -81,6 +109,8 @@ export default function TimerPage() {
     const timeElapsed = dtNow.diff(dtStart)
     timeElapsedFormatted = timeElapsed.toFormat('hh:mm:ss')
   }
+
+  console.log('gonna render')
 
   return (
     <div className='py-10 lg:mt-10'>
@@ -112,7 +142,7 @@ export default function TimerPage() {
               `}
               placeholder='What are you hacking on?'
               value={description}
-              onChange={(e) => { e.preventDefault; setDescription(e.target.value) }}
+              onChange={(e) => { setDescription(e.target.value) }}
             />
           </div> {/* EOF time entry input */}
 
@@ -143,19 +173,20 @@ export default function TimerPage() {
         </div> {/* EOF timer bar container */}
       </div> {/* EOF outer wrapper of the timer bar */}
 
-      {/* Time entries */}
-      <div>
+      {/* Ended time entries */}
+      <div className='mt-8'>
         {isTimeEntriesLoading && <div>Loading stuff...</div>}
-        {timeEntries && timeEntries.length > 0 ? (
-          <div className={`mt-8`}>
-            {timeEntries.map((timeEntry: TimeEntry) => (
-              <TimeEntryAsRow timeEntry={timeEntry} />
-            ))}
-          </div>
-        ) : (
-          <div className='text-gray-600 text-center'>No entries yet!</div>
-        )}
-
+        {endedTimeEntries &&
+          (endedTimeEntries.length > 0 ? (
+            <div>
+              {endedTimeEntries.map((timeEntry: TimeEntry) => (
+                <TimeEntryAsRow timeEntry={timeEntry} key={timeEntry.id} />
+              ))}
+            </div>
+          ) : ( // User hasn't created any time entries yet.
+            <div className='text-stone-500 text-center'>Better start hacking...</div>
+          )
+          )}
       </div> {/* EOF time entries */}
 
     </div >
@@ -190,7 +221,6 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
       </div>
     </div>
   )
-
 }
 
 function TimerButtonStart() {
