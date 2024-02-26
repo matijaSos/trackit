@@ -22,8 +22,7 @@ export default function TimerPage() {
   const { data: timeEntries, isLoading: isTimeEntriesLoading } =
     useQuery(getAllTimeEntriesByUser);
 
-  // TODO(matija): check this from the db, set the state accordingly if not null.
-  // TODO(matija): store id only, that's enough?
+  // TODO(matija): store the id only, that's enough?
   const runningTimeEntry = useRef<TimeEntry | null>(null)
 
   const [description, setDescription] = useState('')
@@ -51,7 +50,6 @@ export default function TimerPage() {
       setDescription(rte.description)
       runningTimeEntry.current = rte
 
-      // TODO(matija): duplication
       clearInterval(intervalRef.current) // TODO(matija): I don't need this?
       intervalRef.current = setInterval(() => {
         setNow(Date.now())
@@ -92,13 +90,38 @@ export default function TimerPage() {
     setIsTimerOn(prevValue => !prevValue)
   }
 
-  // Get time entries that have a stop time.
-  const endedTimeEntries = useMemo(
-    () => timeEntries?.filter(t => t.stop !== null),
+  // TODO(matija): remove this, old.
+  const endedTimeEntries = useMemo(() => timeEntries?.filter(t => t.stop !== null), [timeEntries])
+
+  const endedTimeEntriesGroupedByDayAndSortedDesc = useMemo(
+    () => {
+      if (!timeEntries) return null
+      if (timeEntries.length === 0) return []
+
+      const sortedByDateDesc = timeEntries
+        .filter(t => t.stop !== null )
+        .toSorted((t1, t2) => t2.start.getTime() - t1.start.getTime())
+
+      // Group by day - initial setup
+      let currentDay = DateTime.fromJSDate(sortedByDateDesc[0].start).toISODate()
+      let groupedByDayAndSortedDesc = [{ day: currentDay, entries: [sortedByDateDesc[0]] }]
+
+      for (let i = 1; i < sortedByDateDesc.length; i++) {
+        const timeEntry = sortedByDateDesc[i]
+        const timeEntryDay = DateTime.fromJSDate(timeEntry.start).toISODate()
+
+        if (timeEntryDay === currentDay) {
+          groupedByDayAndSortedDesc[groupedByDayAndSortedDesc.length - 1].entries.push(timeEntry)
+        } else {
+          currentDay = timeEntryDay
+          groupedByDayAndSortedDesc.push({ day: currentDay, entries: [timeEntry] })
+        }
+      }
+      return groupedByDayAndSortedDesc
+    },
     [timeEntries]
   )
 
-  //timeEntries?.filter(t => t.stop !== null)
 
   // TODO(matija): tried to create Duration object directly but had some type errors.
   let timeElapsedFormatted = '00:00:00'
@@ -109,8 +132,6 @@ export default function TimerPage() {
     const timeElapsed = dtNow.diff(dtStart)
     timeElapsedFormatted = timeElapsed.toFormat('hh:mm:ss')
   }
-
-  console.log('gonna render')
 
   return (
     <div className='py-10 lg:mt-10'>
@@ -264,6 +285,18 @@ function TimerButtonStop() {
     </svg>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
