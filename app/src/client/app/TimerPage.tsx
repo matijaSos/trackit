@@ -90,24 +90,23 @@ export default function TimerPage() {
     setIsTimerOn(prevValue => !prevValue)
   }
 
-  // TODO(matija): remove this, old.
-  const endedTimeEntries = useMemo(() => timeEntries?.filter(t => t.stop !== null), [timeEntries])
-
   const endedTimeEntriesGroupedByDayAndSortedDesc = useMemo(
     () => {
       if (!timeEntries) return null
       if (timeEntries.length === 0) return []
 
       const sortedByDateDesc = timeEntries
-        .filter(t => t.stop !== null )
+        .filter(t => t.stop !== null)
         .toSorted((t1, t2) => t2.start.getTime() - t1.start.getTime())
 
       // Group by day - initial setup
+      // TODO(matija): toISODate() can return null, and that messes up my types -> should I handle that situation here?
       let currentDay = DateTime.fromJSDate(sortedByDateDesc[0].start).toISODate()
       let groupedByDayAndSortedDesc = [{ day: currentDay, entries: [sortedByDateDesc[0]] }]
 
       for (let i = 1; i < sortedByDateDesc.length; i++) {
         const timeEntry = sortedByDateDesc[i]
+        // TODO(matija): the same here, toISODate() can return null
         const timeEntryDay = DateTime.fromJSDate(timeEntry.start).toISODate()
 
         if (timeEntryDay === currentDay) {
@@ -197,21 +196,83 @@ export default function TimerPage() {
       {/* Ended time entries */}
       <div className='mt-8'>
         {isTimeEntriesLoading && <div>Loading stuff...</div>}
-        {endedTimeEntries &&
-          (endedTimeEntries.length > 0 ? (
+        {endedTimeEntriesGroupedByDayAndSortedDesc &&
+          (endedTimeEntriesGroupedByDayAndSortedDesc.length > 0 ? (
             <div>
-              {endedTimeEntries.map((timeEntry: TimeEntry) => (
-                <TimeEntryAsRow timeEntry={timeEntry} key={timeEntry.id} />
-              ))}
+              {endedTimeEntriesGroupedByDayAndSortedDesc.map(({ day, entries }) =>
+                <>
+                  {/* TODO(matija): I had to to day! here, because it might be null, due to toISODate (look above). */}
+                  <TimeEntriesForDay day={day!} timeEntries={entries} />
+                </>
+              )}
             </div>
           ) : ( // User hasn't created any time entries yet.
             <div className='text-stone-500 text-center'>Better start hacking...</div>
-          )
-          )}
+          ))
+        }
       </div> {/* EOF time entries */}
 
     </div >
   );
+}
+
+function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: TimeEntry[] }) {
+
+  // TODO(matija): I will probably want to extract and reuse this in other places.
+  function calcDurationOfEndedTimeEntry (timeEntry: TimeEntry) {
+    const start = DateTime.fromJSDate(timeEntry.start)
+    const stop = DateTime.fromJSDate(timeEntry.stop!)
+
+    return stop.diff(start)
+  }
+
+  // TODO(matija): get duration for the whole day etc
+  const totalDuration = timeEntries.reduce(
+    (res: Duration, timeEntry: TimeEntry) => res.plus(calcDurationOfEndedTimeEntry(timeEntry)),
+    Duration.fromMillis(0)
+  )
+
+  // TODO(matija): Should I call this function within useMemo(), instead of calling directly?
+  // Seems like I can actually put the whole component in useMemo()?
+  // E.g. if timeEntries change, but day not, I do not want to recalculate this?
+  function formatDate(isoDate: string) {
+    const dayDiffFromToday =
+      DateTime.now().startOf('day').diff(
+        DateTime.fromISO(isoDate).startOf('day')
+      ).as('days')
+
+    if (dayDiffFromToday === 0) {
+      return 'Today'
+    } else if (dayDiffFromToday === 1) {
+      return 'Yesterday'
+    } else {
+      return DateTime.fromISO(isoDate).toLocaleString({
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      })
+    }
+  }
+
+  return (
+    <div className={`mb-8 bg-yellow-50`}>
+      {/* Header with day info */}
+      <div className='h-[50px] flex flex-row justify-between items-center px-9'>
+        <div className='font-bold'>
+          {formatDate(day)}
+        </div>
+        <div className='tabular-nums font-semibold'>
+          {totalDuration.toFormat('hh:mm:ss')}
+        </div>
+      </div>
+
+      {/* Individual entries */}
+      {timeEntries.map((timeEntry: TimeEntry) => (
+        <TimeEntryAsRow timeEntry={timeEntry} key={timeEntry.id} />
+      ))}
+    </div>
+  )
+
 }
 
 function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
@@ -223,6 +284,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     const stop = DateTime.fromJSDate(timeEntry.stop)
 
     stopMark = stop.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
+    // TODO(matija): I have duplicated "hh:mm:ss" format around the code, unify that.
     durationMark = stop.diff(start).toFormat('hh:mm:ss')
   }
 
@@ -233,12 +295,16 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
         px-4 py-4 border-b
       `}
     >
-      <div>{timeEntry.description}</div>
-      <div className='flex flex-row gap-4'>
+      <div className='pl-5'>
+        {timeEntry.description}
+      </div>
+      <div className='flex flex-row gap-4 pr-5'>
         <div className='text-stone-500'>
           {start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })} - {stopMark}
         </div>
-        <div>{durationMark}</div>
+        <div className='tabular-nums'>
+          {durationMark}
+        </div>
       </div>
     </div>
   )
