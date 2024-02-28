@@ -29,7 +29,12 @@ export default function LandingPage() {
   );
 
   return (
-    <div className='bg-white dark:text-white dark:bg-boxdark-2'>
+    <div
+      className={`
+        mx-auto max-w-7xl sm:px-6 lg:px-8
+        bg-white dark:text-white dark:bg-boxdark-2
+      `}
+    >
       {/* Header */}
       <header className='absolute inset-x-0 top-0 z-50 dark:bg-boxdark-2'>
         <nav

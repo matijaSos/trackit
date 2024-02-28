@@ -133,7 +133,12 @@ export default function TimerPage() {
   }
 
   return (
-    <div className='py-10 lg:mt-10'>
+    <div
+      className={`
+        mx-auto max-w-7xl sm:px-6 lg:px-8
+        py-10 lg:pt-20
+      `}
+    >
 
       {/* Outer wrapper of the timer bar */}
       <div
@@ -255,7 +260,12 @@ function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: Tim
   }
 
   return (
-    <div className={`mb-8 bg-yellow-50`}>
+    <div
+      className={`
+        mb-8 bg-white
+        shadow-[0_1px_3px_0_rgba(0,0,0,0.08)]
+      `}
+    >
       {/* Header with day info */}
       <div className='h-[50px] flex flex-row justify-between items-center px-9'>
         <div className='font-bold'>
