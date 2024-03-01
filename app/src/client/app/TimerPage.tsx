@@ -1,18 +1,18 @@
+import { type Task, type TimeEntry } from "wasp/entities";
+
+import {
+  generateGptResponse,
+  deleteTask,
+  updateTask,
+  createTask,
+  createTimeEntry,
+  updateTimeEntry,
+  useQuery,
+  getAllTimeEntriesByUser,
+  getAllTasksByUser,
+} from "wasp/client/operations";
+
 import { useState, useEffect, useMemo, useRef } from 'react';
-import generateGptResponse from '@wasp/actions/generateGptResponse';
-
-// TODO(matija): old stuff, remove it
-import deleteTask from '@wasp/actions/deleteTask';
-import updateTask from '@wasp/actions/updateTask';
-import createTask from '@wasp/actions/createTask';
-
-import createTimeEntry from '@wasp/actions/createTimeEntry';
-import updateTimeEntry from '@wasp/actions/updateTimeEntry';
-import getAllTimeEntriesByUser from '@wasp/queries/getAllTimeEntriesByUser';
-
-import { useQuery } from '@wasp/queries';
-import getAllTasksByUser from '@wasp/queries/getAllTasksByUser';
-import { Task, TimeEntry } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
 import { DateTime, Duration } from 'luxon';
@@ -133,13 +133,12 @@ export default function TimerPage() {
   }
 
   return (
-    <div
+    (<div
       className={`
         mx-auto max-w-7xl sm:px-6 lg:px-8
         py-10 lg:pt-20
       `}
     >
-
       {/* Outer wrapper of the timer bar */}
       <div
         className={`
@@ -197,7 +196,6 @@ export default function TimerPage() {
 
         </div> {/* EOF timer bar container */}
       </div> {/* EOF outer wrapper of the timer bar */}
-
       {/* Ended time entries */}
       <div className='mt-8'>
         {isTimeEntriesLoading && <div>Loading stuff...</div>}
@@ -212,12 +210,11 @@ export default function TimerPage() {
               )}
             </div>
           ) : ( // User hasn't created any time entries yet.
-            <div className='text-stone-500 text-center'>Better start hacking...</div>
+            (<div className='text-stone-500 text-center'>Better start hacking...</div>)
           ))
         }
       </div> {/* EOF time entries */}
-
-    </div >
+    </div >)
   );
 }
 

@@ -1,14 +1,22 @@
-import HttpError from '@wasp/core/HttpError.js';
-import type { TimeEntry, DailyStats, GptResponse, User, PageViewSource, Task, File } from '@wasp/entities';
-import type {
-  GetGptResponses,
-  GetDailyStats,
-  GetPaginatedUsers,
-  GetAllTasksByUser,
-  GetAllFilesByUser,
-  GetDownloadFileSignedURL,
-  GetAllTimeEntriesByUser
-} from '@wasp/queries/types';
+import {
+  type TimeEntry,
+  type DailyStats,
+  type GptResponse,
+  type User,
+  type PageViewSource,
+  type Task,
+  type File,
+} from "wasp/entities";
+import { HttpError } from "wasp/server";
+import {
+  type GetGptResponses,
+  type GetDailyStats,
+  type GetPaginatedUsers,
+  type GetAllTasksByUser,
+  type GetAllFilesByUser,
+  type GetDownloadFileSignedURL,
+  type GetAllTimeEntriesByUser,
+} from "wasp/server/operations";
 import { getDownloadFileSignedURLFromS3 } from './file-upload/s3Utils.js';
 
 type DailyStatsWithSources = DailyStats & {
