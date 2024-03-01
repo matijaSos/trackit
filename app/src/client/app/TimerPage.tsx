@@ -224,7 +224,7 @@ export default function TimerPage() {
 function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: TimeEntry[] }) {
 
   // TODO(matija): I will probably want to extract and reuse this in other places.
-  function calcDurationOfEndedTimeEntry (timeEntry: TimeEntry) {
+  function calcDurationOfEndedTimeEntry(timeEntry: TimeEntry) {
     const start = DateTime.fromJSDate(timeEntry.start)
     const stop = DateTime.fromJSDate(timeEntry.stop!)
 
@@ -285,7 +285,23 @@ function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: Tim
 
 }
 
+// TODO(matija): should I also useMemo() this component, so it doesn't calculate
+// time diffs on every render?
 function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
+  const [description, setDescription] = useState(timeEntry.description)
+  const [isEditing, setIsEditing] = useState(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  function handleEnterEditMode() {
+    setIsEditing(true)
+  }
+
+  useEffect(() => {
+    if (inputRef?.current && isEditing) {
+      inputRef.current.focus()
+    }
+  }, [isEditing, inputRef])
+
   const start = DateTime.fromJSDate(timeEntry.start)
 
   let stopMark = 'n/a'
@@ -305,8 +321,21 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
         px-4 py-4 border-b
       `}
     >
-      <div className='pl-5'>
-        {timeEntry.description}
+      <div className='pl-5 grow mr-2'>
+        {isEditing ? (
+          <input
+            className={`
+              w-full bg-yellow-100
+              border-0 focus:ring-0
+              px-0 py-0
+            `}
+            ref={inputRef}
+            value={description}
+            onChange={(e) => { setDescription(e.target.value) }}
+          />
+        ) : (
+          <span onMouseEnter={handleEnterEditMode}>{description}</span>
+        )}
       </div>
       <div className='flex flex-row gap-4 pr-5'>
         <div className='text-stone-500'>
