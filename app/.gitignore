@@ -11,3 +11,6 @@ node_modules/
 # or modify/delete these two lines.
 *.env
 *.env.*
+!.env.server.example
+!.env.client.example
+
