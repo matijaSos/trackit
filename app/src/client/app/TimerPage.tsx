@@ -290,17 +290,31 @@ function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: Tim
 function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   const [description, setDescription] = useState(timeEntry.description)
   const [isEditing, setIsEditing] = useState(false)
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const [isInputFocused, setIsInputFocused] = useState(false)
 
-  function handleEnterEditMode() {
-    setIsEditing(true)
+  async function handleOnBlur() {
+    setIsInputFocused(false)
+    setIsEditing(false)
+
+    if (description !== timeEntry.description) {
+      try {
+        await updateTimeEntry({ id: timeEntry.id, description })
+
+      } catch (err: any) {
+        window.alert('Error: ' + (err.message || 'Something went wrong'))
+        // Revert to the original description
+        setDescription(timeEntry.description)
+      }
+    }
   }
 
-  useEffect(() => {
-    if (inputRef?.current && isEditing) {
-      inputRef.current.focus()
+  // TODO(matija): onMouseLeave is not captured if I'm moving mouse too fast over
+  // the rows. Seems like this: https://stackoverflow.com/questions/31775182/react-event-onmouseleave-not-triggered-when-moving-cursor-fast 
+  function handleOnMouseLeave() {
+    if (!isInputFocused) {
+      setIsEditing(false)
     }
-  }, [isEditing, inputRef])
+  }
 
   const start = DateTime.fromJSDate(timeEntry.start)
 
@@ -325,16 +339,28 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
         {isEditing ? (
           <input
             className={`
-              w-full bg-yellow-100
+              w-full bg-transparent
               border-0 focus:ring-0
               px-0 py-0
             `}
-            ref={inputRef}
             value={description}
             onChange={(e) => { setDescription(e.target.value) }}
+            placeholder='What did you do?'
+            onBlur={handleOnBlur}
+            onFocus={() => setIsInputFocused(true)}
+            onMouseLeave={handleOnMouseLeave}
           />
         ) : (
-          <span onMouseEnter={handleEnterEditMode}>{description}</span>
+          <div
+            className=''
+            onMouseEnter={() => setIsEditing(true)}
+          >
+            {description.length > 0 ? (
+              <span>{description}</span>
+            ) : (
+              <span className='text-stone-500 italic'>No description</span>
+            ) }
+          </div>
         )}
       </div>
       <div className='flex flex-row gap-4 pr-5'>
