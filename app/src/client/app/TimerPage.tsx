@@ -42,7 +42,6 @@ export default function TimerPage() {
     }
     if (runningTimeEntries && runningTimeEntries.length === 1) {
       const rte = runningTimeEntries[0]
-      console.log('I have a running time entry!')
 
       // Recreate local state from the db data.
       setIsTimerOn(true)
@@ -57,6 +56,19 @@ export default function TimerPage() {
 
     }
   }, [timeEntries])
+
+  async function handleOnTimerInputBlur() {
+    if (runningTimeEntry.current && description !== runningTimeEntry.current.description) {
+      try {
+        await updateTimeEntry({ id: runningTimeEntry.current.id, description })
+
+      } catch (err: any) {
+        window.alert('Error: ' + (err.message || 'Something went wrong'))
+        // Revert to the original description
+        setDescription(runningTimeEntry.current.description)
+      }
+    }
+  }
 
   async function handleStopwatchButtonClicked() {
     if (!isTimerOn) { // Start
@@ -168,6 +180,7 @@ export default function TimerPage() {
               placeholder='What are you hacking on?'
               value={description}
               onChange={(e) => { setDescription(e.target.value) }}
+              onBlur={handleOnTimerInputBlur}
             />
           </div> {/* EOF time entry input */}
 
@@ -340,12 +353,13 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
           <input
             className={`
               w-full bg-transparent
+              placeholder:italic
               border-0 focus:ring-0
               px-0 py-0
             `}
             value={description}
             onChange={(e) => { setDescription(e.target.value) }}
-            placeholder='What did you do?'
+            placeholder='No description'
             onBlur={handleOnBlur}
             onFocus={() => setIsInputFocused(true)}
             onMouseLeave={handleOnMouseLeave}
