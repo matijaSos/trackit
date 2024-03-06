@@ -16,6 +16,7 @@ import { Task, TimeEntry } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
 import { DateTime, Duration } from 'luxon';
+import { Popover } from '@headlessui/react'
 import { start } from 'repl';
 
 export default function TimerPage() {
@@ -330,6 +331,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   }
 
   const start = DateTime.fromJSDate(timeEntry.start)
+  const startMark = start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
 
   let stopMark = 'n/a'
   let durationMark = 'n/a'
@@ -373,14 +375,33 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
               <span>{description}</span>
             ) : (
               <span className='text-stone-500 italic'>No description</span>
-            ) }
+            )}
           </div>
         )}
       </div>
       <div className='flex flex-row gap-4 pr-5'>
-        <div className='text-stone-500'>
-          {start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })} - {stopMark}
-        </div>
+        <Popover
+          className={`
+            relative
+            text-stone-500 cursor-pointer
+            px-2 rounded-md
+            hover:bg-stone-100 hover:text-black
+          `}
+        >
+          <Popover.Button className={`focus:outline-none`}>
+            {startMark} - {stopMark}
+          </Popover.Button>
+
+          <Popover.Panel className='absolute mt-2 z-10 w-screen max-w-sm left-1/2 -translate-x-1/2'>
+            <div
+              className={`
+                bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
+              `}
+            >
+              <span>The datepicker will go here.</span>
+            </div>
+          </Popover.Panel>
+        </Popover>
         <div className='tabular-nums'>
           {durationMark}
         </div>
