@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
 import generateGptResponse from '@wasp/actions/generateGptResponse';
 
 // TODO(matija): old stuff, remove it
@@ -16,7 +16,7 @@ import { Task, TimeEntry } from '@wasp/entities';
 import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
 import { DateTime, Duration } from 'luxon';
-import { Popover } from '@headlessui/react'
+import { Popover, Transition } from '@headlessui/react'
 import { start } from 'repl';
 
 export default function TimerPage() {
@@ -392,15 +392,25 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             {startMark} - {stopMark}
           </Popover.Button>
 
-          <Popover.Panel className='absolute mt-2 z-10 w-screen max-w-sm left-1/2 -translate-x-1/2'>
-            <div
-              className={`
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-200"
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-150"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-1"
+          >
+            <Popover.Panel className='absolute mt-2 z-10 w-screen max-w-sm left-1/2 -translate-x-1/2'>
+              <div
+                className={`
                 bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
               `}
-            >
-              <span>The datepicker will go here.</span>
-            </div>
-          </Popover.Panel>
+              >
+                <span>The datepicker will go here.</span>
+              </div>
+            </Popover.Panel>
+          </Transition>
         </Popover>
         <div className='tabular-nums'>
           {durationMark}
