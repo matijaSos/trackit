@@ -1,6 +1,6 @@
 app SaaSTemplate {
   wasp: {
-    version: "^0.11.8"
+    version: "^0.12.0"
   },
   title: "My Open SaaS App",
   head: [
@@ -17,7 +17,7 @@ app SaaSTemplate {
         // plausible has script extension `script.local.js` for local development
         "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>",
         // google analytics only needs one script and will automatically detect if you are in dev mode 
-        "<!-- Google tag (gtag.js) --><script>...</script>"
+        // "<!-- Google tag (gtag.js) --><script>...</script>"
   ],
   // 🔐 Auth out of the box! https://wasp-lang.dev/docs/auth/overview
   auth: {
@@ -26,8 +26,8 @@ app SaaSTemplate {
     methods: {
        gitHub: {},
        google: {
-         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js",
-         configFn: import { config } from "@server/auth/google.js",
+         userSignupFields: import { getUserFields } from "@src/server/auth/google.js",
+         configFn: import { config } from "@src/server/auth/google.js",
        },
        email: {
          fromField: {
@@ -37,28 +37,28 @@ app SaaSTemplate {
          },
          emailVerification: {
            clientRoute: EmailVerificationRoute,
-           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+           getEmailContentFn: import { getVerificationEmailContent } from "@src/server/auth/email.js",
          },
          passwordReset: {
            clientRoute: PasswordResetRoute,
-           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+           getEmailContentFn: import { getPasswordResetEmailContent } from "@src/server/auth/email.js",
          },
        },
     },
-    signup: {
-      additionalFields: import setAdditionalUserFields from "@server/auth/setAdditionalUserFields.js",
-    },
+    // signup: {
+    //   additionalFields: import setAdditionalUserFields from "@src/server/auth/setAdditionalUserFields.js",
+    // },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/timer",
   },
   db: { 
     system: PostgreSQL,
     seeds: [
-      import { devSeedUsers } from "@server/scripts/usersSeed.js",
+      import { devSeedUsers } from "@src/server/scripts/usersSeed.js",
     ]
   },
   client: {
-    rootComponent: import App from "@client/App",
+    rootComponent: import App from "@src/client/App",
   },
   emailSender: {
     provider: SendGrid,
@@ -68,28 +68,7 @@ app SaaSTemplate {
       email: "me@example.com" 
     },
   },
-  // add your dependencies here. the quickest way to find the latest version is `npm view <package-name> version`
-  dependencies: [
-    ("luxon", "^3.4.4"),
-    ("@types/luxon", "^3.4.2"),
-    ("@headlessui/react", "1.7.13"),
-    ("@tailwindcss/forms", "^0.5.3"),
-    ("@tailwindcss/typography", "^0.5.7"),
-    ("react-icons", "4.11.0"),
-    ("node-fetch", "3.3.0"),
-    ("stripe", "11.15.0"),
-    ("react-hot-toast", "^2.4.1"),
-    ("react-apexcharts", "^1.4.1"),
-    ("apexcharts", "^3.41.0"),
-    ("headlessui", "^0.0.0"),
-    ("@faker-js/faker", "8.3.1"),
-    ("@google-analytics/data", "4.1.0"),
-    ("openai", "^4.24.1"),
-    ("prettier", "3.1.1"),
-    ("prettier-plugin-tailwindcss", "0.5.11"),
-    ("zod", "3.22.4"),
-    ("aws-sdk", "^2.1551.0")
-  ],
+  // add your dependencies here. the quickest way to find the latest version is `npm view <package-name> version`,
 }
 
 /* 💽 Wasp defines DB entities via Prisma Database Models: 
@@ -228,121 +207,121 @@ psl=}
 
 route LandingPageRoute { path: "/", to: LandingPage }
 page LandingPage {
-  component: import LandingPage from "@client/landing-page/LandingPage"
+  component: import LandingPage from "@src/client/landing-page/LandingPage"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/auth/LoginPage"
+  component: import Login from "@src/client/auth/LoginPage"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/auth/SignupPage"
+  component: import { Signup } from "@src/client/auth/SignupPage"
 }
 
  route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
  page RequestPasswordResetPage {
-   component: import { RequestPasswordReset } from "@client/auth/RequestPasswordReset",
+   component: import { RequestPasswordReset } from "@src/client/auth/RequestPasswordReset",
  }
 
  route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
  page PasswordResetPage {
-   component: import { PasswordReset } from "@client/auth/PasswordReset",
+   component: import { PasswordReset } from "@src/client/auth/PasswordReset",
  }
 
  route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
  page EmailVerificationPage {
-   component: import { EmailVerification } from "@client/auth/EmailVerification",
+   component: import { EmailVerification } from "@src/client/auth/EmailVerification",
  }
 
 route TimerRoute { path: "/timer", to: TimerPage }
 page TimerPage {
   authRequired: true,
-  component: import TimerPage from "@client/app/TimerPage"
+  component: import TimerPage from "@src/client/app/TimerPage"
 }
 
 route PricingPageRoute { path: "/pricing", to: PricingPage }
 page PricingPage {
-  component: import PricingPage from "@client/app/PricingPage"
+  component: import PricingPage from "@src/client/app/PricingPage"
 }
 
 route AccountRoute { path: "/account", to: AccountPage }
 page AccountPage {
   authRequired: true,
-  component: import Account from "@client/app/AccountPage"
+  component: import Account from "@src/client/app/AccountPage"
 }
 
 route CheckoutRoute { path: "/checkout", to: CheckoutPage }
 page CheckoutPage {
   authRequired: true,
-  component: import Checkout from "@client/app/CheckoutPage"
+  component: import Checkout from "@src/client/app/CheckoutPage"
 }
 
 route FileUploadRoute { path: "/file-upload", to: FileUploadPage }
 page FileUploadPage {
   authRequired: true,
-  component: import FileUpload from "@client/app/FileUploadPage"
+  component: import FileUpload from "@src/client/app/FileUploadPage"
 }
 
 route AdminRoute { path: "/admin", to: DashboardPage }
 page DashboardPage {
   authRequired: true,
-  component: import Dashboard from "@client/admin/pages/DashboardPage"
+  component: import Dashboard from "@src/client/admin/pages/DashboardPage"
 }
 
 route AdminUsersRoute { path: "/admin/users", to: AdminUsersPage }
 page AdminUsersPage {
   authRequired: true,
-  component: import AdminUsers from "@client/admin/pages/Users"
+  component: import AdminUsers from "@src/client/admin/pages/Users"
 }
 
 route AdminSettingsRoute { path: "/admin/settings", to: AdminSettingsPage }
 page AdminSettingsPage {
   authRequired: true,
-  component: import AdminSettings from "@client/admin/pages/Settings"
+  component: import AdminSettings from "@src/client/admin/pages/Settings"
 }
 
 route AdminChartsRoute { path: "/admin/chart", to: AdminChartsPage }
 page AdminChartsPage {
   authRequired: true,
-  component: import AdminCharts from "@client/admin/pages/Chart"
+  component: import AdminCharts from "@src/client/admin/pages/Chart"
 }
 
 route AdminMessagesRoute { path: "/admin/messages", to: AdminMessagesPage }
 page AdminMessagesPage {
   authRequired: true,
-  component: import AdminMessages from "@client/admin/pages/Messages"
+  component: import AdminMessages from "@src/client/admin/pages/Messages"
 }
 
 route AdminFormElementsRoute { path: "/admin/forms/form-elements", to: AdminFormElementsPage }
 page AdminFormElementsPage {
   authRequired: true,
-  component: import AdminForms from "@client/admin/pages/Form/FormElements"
+  component: import AdminForms from "@src/client/admin/pages/Form/FormElements"
 }
 
 route AdminFormLayoutsRoute { path: "/admin/forms/form-layouts", to: AdminFormLayoutsPage }
 page AdminFormLayoutsPage {
   authRequired: true,
-  component: import AdminForms from "@client/admin/pages/Form/FormLayout"
+  component: import AdminForms from "@src/client/admin/pages/Form/FormLayout"
 }
 
 route AdminCalendarRoute { path: "/admin/calendar", to: AdminCalendarPage }
 page AdminCalendarPage {
   authRequired: true,
-  component: import AdminCalendar from "@client/admin/pages/Calendar"
+  component: import AdminCalendar from "@src/client/admin/pages/Calendar"
 }
 
 route AdminUIAlertsRoute { path: "/admin/ui/alerts", to: AdminUIAlertsPage }
 page AdminUIAlertsPage {
   authRequired: true,
-  component: import AdminUI from "@client/admin/pages/UiElements/Alerts"
+  component: import AdminUI from "@src/client/admin/pages/UiElements/Alerts"
 }
 
 route AdminUIButtonsRoute { path: "/admin/ui/buttons", to: AdminUIButtonsPage }
 page AdminUIButtonsPage {
   authRequired: true,
-  component: import AdminUI from "@client/admin/pages/UiElements/Buttons"
+  component: import AdminUI from "@src/client/admin/pages/UiElements/Buttons"
 }
 
 /* ⛑ These are the Wasp Operations, which allow the client and server to interact:
@@ -352,54 +331,54 @@ page AdminUIButtonsPage {
 // 📝 Actions aka Mutations
 
 action generateGptResponse {
-  fn: import { generateGptResponse } from "@server/actions.js",
+  fn: import { generateGptResponse } from "@src/server/actions.js",
   entities: [User, Task, GptResponse]
 }
 
 action createTimeEntry {
-  fn: import { createTimeEntry } from "@server/actions.js",
+  fn: import { createTimeEntry } from "@src/server/actions.js",
   entities: [TimeEntry]
 }
 
 action updateTimeEntry {
-  fn: import { updateTimeEntry } from "@server/actions.js",
+  fn: import { updateTimeEntry } from "@src/server/actions.js",
   entities: [TimeEntry]
 }
 
 
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js",
+  fn: import { createTask } from "@src/server/actions.js",
   entities: [Task]
 }
 
 action deleteTask {
-  fn: import { deleteTask } from "@server/actions.js",
+  fn: import { deleteTask } from "@src/server/actions.js",
   entities: [Task]
 }
 
 action updateTask {
-  fn: import { updateTask } from "@server/actions.js",
+  fn: import { updateTask } from "@src/server/actions.js",
   entities: [Task]
 }
 
 action stripePayment {
-  fn: import { stripePayment } from "@server/actions.js",
+  fn: import { stripePayment } from "@src/server/actions.js",
   entities: [User]
 }
 
 action updateCurrentUser {
-  fn: import { updateCurrentUser } from "@server/actions.js",
+  fn: import { updateCurrentUser } from "@src/server/actions.js",
   entities: [User]
 }
 
 action updateUserById {
-  fn: import { updateUserById } from "@server/actions.js",
+  fn: import { updateUserById } from "@src/server/actions.js",
   entities: [User]
 }
 
 action createFile {
-  fn: import { createFile } from "@server/actions.js",
+  fn: import { createFile } from "@src/server/actions.js",
   entities: [User, File]
 }
 
@@ -407,12 +386,12 @@ action createFile {
 // 📚 Queries
 
 query getGptResponses {
-  fn: import { getGptResponses } from "@server/queries.js",
+  fn: import { getGptResponses } from "@src/server/queries.js",
   entities: [User, GptResponse]
 }
 
 query getAllTimeEntriesByUser {
-  fn: import { getAllTimeEntriesByUser } from "@server/queries.js",
+  fn: import { getAllTimeEntriesByUser } from "@src/server/queries.js",
   entities: [TimeEntry]
 }
 
@@ -420,27 +399,27 @@ query getAllTimeEntriesByUser {
 // -- OS stuff
 
 query getAllTasksByUser {
-  fn: import { getAllTasksByUser } from "@server/queries.js",
+  fn: import { getAllTasksByUser } from "@src/server/queries.js",
   entities: [Task]
 }
 
 query getAllFilesByUser {
-  fn: import { getAllFilesByUser } from "@server/queries.js",
+  fn: import { getAllFilesByUser } from "@src/server/queries.js",
   entities: [User, File]
 }
 
 query getDownloadFileSignedURL {
-  fn: import { getDownloadFileSignedURL } from "@server/queries.js",
+  fn: import { getDownloadFileSignedURL } from "@src/server/queries.js",
   entities: [User, File]
 }
 
 query getDailyStats {
-  fn: import { getDailyStats } from "@server/queries.js",
+  fn: import { getDailyStats } from "@src/server/queries.js",
   entities: [User, DailyStats]
 }
 
 query getPaginatedUsers {
-  fn: import { getPaginatedUsers } from "@server/queries.js",
+  fn: import { getPaginatedUsers } from "@src/server/queries.js",
   entities: [User]
 }
 
@@ -450,9 +429,9 @@ query getPaginatedUsers {
  */ 
 
 api stripeWebhook {
-  fn: import { stripeWebhook } from "@server/webhooks/stripe.js",
+  fn: import { stripeWebhook } from "@src/server/webhooks/stripe.js",
   entities: [User],
-  middlewareConfigFn: import { stripeMiddlewareFn } from "@server/webhooks/stripe.js",
+  middlewareConfigFn: import { stripeMiddlewareFn } from "@src/server/webhooks/stripe.js",
   httpRoute: (POST, "/stripe-webhook")
 }
 
@@ -463,7 +442,7 @@ api stripeWebhook {
 job emailChecker {
   executor: PgBoss,
   perform: {
-    fn: import { checkAndQueueEmails } from "@server/workers/checkAndQueueEmails.js"
+    fn: import { checkAndQueueEmails } from "@src/server/workers/checkAndQueueEmails.js"
   },
   schedule: {
     cron: "0 7 * * 1" // at 7:00 am every Monday
@@ -474,7 +453,7 @@ job emailChecker {
 job dailyStatsJob {
   executor: PgBoss,
   perform: {
-    fn: import { calculateDailyStats } from "@server/workers/calculateDailyStats.js"
+    fn: import { calculateDailyStats } from "@src/server/workers/calculateDailyStats.js"
   },
   schedule: {
     cron: "0 * * * *" // every hour. useful in production

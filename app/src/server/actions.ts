@@ -1,22 +1,22 @@
+import { type User, type Task, type File, type TimeEntry } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import {
+  type GenerateGptResponse,
+  type StripePayment,
+  type UpdateCurrentUser,
+  type UpdateUserById,
+  type CreateTask,
+  type DeleteTask,
+  type UpdateTask,
+  type CreateFile,
+  type CreateTimeEntry,
+  type UpdateTimeEntry,
+} from "wasp/server/operations";
 import Stripe from 'stripe';
 import fetch from 'node-fetch';
-import HttpError from '@wasp/core/HttpError.js';
-import type { User, Task, File, TimeEntry } from '@wasp/entities';
 import type { StripePaymentResult } from './types';
-import {
-  GenerateGptResponse,
-  StripePayment,
-  UpdateCurrentUser,
-  UpdateUserById,
-  CreateTask,
-  DeleteTask,
-  UpdateTask,
-  CreateFile,
-  CreateTimeEntry,
-  UpdateTimeEntry
-} from '@wasp/actions/types';
 import { fetchStripeCustomer, createStripeCheckoutSession } from './payments/stripeUtils.js';
-import { TierIds } from '@wasp/shared/constants.js';
+import { TierIds } from '../shared/constants.js';
 import { getUploadFileSignedURLFromS3 } from './file-upload/s3Utils.js';
 
 export const stripePayment: StripePayment<string, StripePaymentResult> = async (tier, context) => {
