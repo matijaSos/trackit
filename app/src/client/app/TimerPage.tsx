@@ -17,6 +17,11 @@ import { CgSpinner } from 'react-icons/cg';
 import { TiDelete } from 'react-icons/ti';
 import { DateTime, Duration } from 'luxon';
 import { Popover, Transition } from '@headlessui/react'
+import {
+  Calendar, CalendarCell, CalendarGrid,
+  Heading,
+  Button as AriaButton
+} from 'react-aria-components'
 import { start } from 'repl';
 
 export default function TimerPage() {
@@ -407,7 +412,20 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                 bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
               `}
               >
+
                 <span>The datepicker will go here.</span>
+
+                <Calendar aria-label='Start date'>
+                  <header>
+                    <AriaButton slot='previous'>◀</AriaButton>
+                    <Heading />
+                    <AriaButton slot='next'>▶</AriaButton>
+                  </header>
+                  <CalendarGrid>
+                    {(date) => <CalendarCell date={date} />}
+                  </CalendarGrid>
+                </Calendar>
+
               </div>
             </Popover.Panel>
           </Transition>
