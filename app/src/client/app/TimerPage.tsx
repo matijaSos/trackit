@@ -22,6 +22,10 @@ import {
   Heading,
   Button as AriaButton
 } from 'react-aria-components'
+import type {
+  ButtonProps
+} from 'react-aria-components'
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { start } from 'repl';
 
 export default function TimerPage() {
@@ -406,23 +410,34 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
           >
-            <Popover.Panel className='absolute mt-2 z-10 w-screen max-w-sm left-1/2 -translate-x-1/2'>
+            <Popover.Panel className='absolute mt-2 z-10 left-1/2 -translate-x-1/2'>
               <div
                 className={`
                 bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
               `}
               >
 
-                <span>The datepicker will go here.</span>
-
                 <Calendar aria-label='Start date'>
-                  <header>
-                    <AriaButton slot='previous'>◀</AriaButton>
-                    <Heading />
-                    <AriaButton slot='next'>▶</AriaButton>
+                  <header className='flex items-center gap-1 pb-4 px-1 w-full'>
+                    <Heading className='flex-1 font-semibold text-2xl ml-2' />
+                    <CalendarNextPrevMonthButton slot='previous'>
+                      <FiChevronLeft />
+                    </CalendarNextPrevMonthButton>
+                    <CalendarNextPrevMonthButton slot='next'>
+                      <FiChevronRight />
+                    </CalendarNextPrevMonthButton>
                   </header>
-                  <CalendarGrid>
-                    {(date) => <CalendarCell date={date} />}
+                  <CalendarGrid className='border-spacing-1 border-separate'>
+                    {(date) => 
+                      <CalendarCell
+                        date={date}
+                        className={`
+                          w-9 h-9 rounded-full
+                          flex items-center justify-center
+                          hover:bg-gray-100
+                        `}
+                      />
+                    }
                   </CalendarGrid>
                 </Calendar>
 
@@ -435,6 +450,19 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
         </div>
       </div>
     </div>
+  )
+}
+
+function CalendarNextPrevMonthButton(props: ButtonProps) {
+  return (
+    <AriaButton
+      {...props}
+      className={`
+        w-9 h-9 bg-transparent rounded-full
+        flex items-center justify-center
+        hover:bg-gray-100
+      `}
+    />
   )
 }
 
