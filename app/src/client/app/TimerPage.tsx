@@ -26,6 +26,7 @@ import type {
   ButtonProps
 } from 'react-aria-components'
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { parseDate } from '@internationalized/date'
 import { start } from 'repl';
 
 export default function TimerPage() {
@@ -315,6 +316,13 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isInputFocused, setIsInputFocused] = useState(false)
 
+  const [startDate, setStartDate] = useState(
+    // TODO(matija): had to use '!' here, because toISODate apparently can return string | null.
+    // Although I don't get why it would return null since it is always invoked from the DateTime object,
+    // which should be valid since it is instantiated?
+    parseDate(DateTime.fromJSDate(timeEntry.start).toISODate()!)
+  )
+
   async function handleOnBlur() {
     setIsInputFocused(false)
     setIsEditing(false)
@@ -417,7 +425,11 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
               `}
               >
 
-                <Calendar aria-label='Start date'>
+                <Calendar
+                  aria-label='Start date'
+                  value={startDate}
+                  onChange={setStartDate}
+                >
                   <header className='flex items-center gap-1 pb-4 px-1 w-full'>
                     <Heading className='flex-1 font-semibold text-2xl ml-2' />
                     <CalendarNextPrevMonthButton slot='previous'>
@@ -432,9 +444,10 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                       <CalendarCell
                         date={date}
                         className={`
-                          w-9 h-9 rounded-full
+                          w-9 h-9 rounded-full outline-none
                           flex items-center justify-center
                           hover:bg-gray-100
+                          data-[selected]:bg-yellow-500 data-[selected]:text-white
                         `}
                       />
                     }
