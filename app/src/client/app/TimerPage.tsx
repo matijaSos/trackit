@@ -323,6 +323,10 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     parseDate(DateTime.fromJSDate(timeEntry.start).toISODate()!)
   )
 
+  async function handleStartStopChange() {
+    console.log('update start and stop times here!')
+  }
+
   async function handleOnBlur() {
     setIsInputFocused(false)
     setIsEditing(false)
@@ -421,16 +425,33 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             <Popover.Panel className='absolute mt-2 z-10 left-1/2 -translate-x-1/2'>
               <div
                 className={`
-                bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
+                  bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
               `}
               >
+                {/* Start & stop time container */}
+                <div className='flex flex-row items-center justify-between space-x-4 mx-2'>
+                  <div className=''>
+                    <label className='uppercase text-xs font-semibold'>
+                      <span>Start</span>
+                    </label>
+                    <input className='w-full h-9 rounded-md' />
+                  </div>
+
+                  <div className=''>
+                    <label className='uppercase text-xs font-semibold'>
+                      <span>Stop</span>
+                    </label>
+                    <input className='w-full h-9 rounded-md' />
+                  </div>
+                </div> {/* EOF start & stop time container */}
 
                 <Calendar
                   aria-label='Start date'
                   value={startDate}
                   onChange={setStartDate}
+                  className='mt-6 border-t'
                 >
-                  <header className='flex items-center gap-1 pb-4 px-1 w-full'>
+                  <header className='flex items-center gap-1 pb-4 px-1 w-full mt-4'>
                     <Heading className='flex-1 font-semibold text-2xl ml-2' />
                     <CalendarNextPrevMonthButton slot='previous'>
                       <FiChevronLeft />
@@ -440,7 +461,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                     </CalendarNextPrevMonthButton>
                   </header>
                   <CalendarGrid className='border-spacing-1 border-separate'>
-                    {(date) => 
+                    {(date) =>
                       <CalendarCell
                         date={date}
                         className={`
@@ -453,6 +474,19 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                     }
                   </CalendarGrid>
                 </Calendar>
+
+                <Popover.Button
+                  className={`
+                    ml-2 mt-2
+                    px-3 py-2 rounded
+                    bg-yellow-500 text-white
+                    hover:bg-yellow-600
+                    transition duration-200 ease-out
+                  `}
+                  onClick={handleStartStopChange}
+                >
+                  Save
+                </Popover.Button>
 
               </div>
             </Popover.Panel>
