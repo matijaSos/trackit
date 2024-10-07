@@ -228,6 +228,8 @@ export const generateGptResponse: GenerateGptResponse<GptPayload, string> = asyn
   }
 };
 
+
+
 export const createTimeEntry: CreateTimeEntry<Pick<TimeEntry, 'description' | 'start'>, TimeEntry> =
   async ({ description, start }, context) => {
   if (!context.user) {
@@ -267,6 +269,8 @@ export const updateTimeEntry: UpdateTimeEntry<Partial<TimeEntry>, TimeEntry> =
 
   return timeEntry;
 }
+
+
 
 
 // -- Old, Open SaaS stuff

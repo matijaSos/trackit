@@ -314,8 +314,10 @@ function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: Tim
 function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   const [description, setDescription] = useState(timeEntry.description)
   const [isEditing, setIsEditing] = useState(false)
+  // TODO(matija): this is for description - rename to "isDescriptionInputFocused"?
   const [isInputFocused, setIsInputFocused] = useState(false)
 
+  // Used by calendar - I should extract this from here.
   const [startDate, setStartDate] = useState(
     // TODO(matija): had to use '!' here, because toISODate apparently can return string | null.
     // Although I don't get why it would return null since it is always invoked from the DateTime object,
@@ -434,14 +436,20 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                     <label className='uppercase text-xs font-semibold'>
                       <span>Start</span>
                     </label>
-                    <input className='w-full h-9 rounded-md' />
+                    <input
+                      className='w-full h-9 rounded-md'
+                      value={startMark}
+                    />
                   </div>
 
                   <div className=''>
                     <label className='uppercase text-xs font-semibold'>
                       <span>Stop</span>
                     </label>
-                    <input className='w-full h-9 rounded-md' />
+                    <input
+                      className='w-full h-9 rounded-md'
+                      value={stopMark}
+                    />
                   </div>
                 </div> {/* EOF start & stop time container */}
 
