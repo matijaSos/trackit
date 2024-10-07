@@ -25,11 +25,16 @@ export default function LandingPage() {
   const { data: user, isLoading: isUserLoading } = useAuth();
 
   const NavLogo = () => (
-    <img className='h-8 w-8' src={logo} alt='Your SaaS App' />
+    <img className='h-8 w-8' src={logo} alt='Track It' />
   );
 
   return (
-    <div className='bg-white dark:text-white dark:bg-boxdark-2'>
+    <div
+      className={`
+        mx-auto max-w-7xl sm:px-6 lg:px-8
+        bg-white dark:text-white dark:bg-boxdark-2
+      `}
+    >
       {/* Header */}
       <header className='absolute inset-x-0 top-0 z-50 dark:bg-boxdark-2'>
         <nav
@@ -43,7 +48,7 @@ export default function LandingPage() {
             >
               <NavLogo />
               <span className='ml-2 text-sm font-semibold leading-6 dark:text-white'>
-                Your Saas
+                Track It
               </span>
             </a>
           </div>
@@ -169,19 +174,18 @@ export default function LandingPage() {
             <div className='mx-auto max-w-8xl px-6 lg:px-8'>
               <div className='lg:mb-18 mx-auto max-w-3xl text-center'>
                 <h1 className='text-4xl font-bold text-gray-900 sm:text-6xl dark:text-white'>
-                  Some <span className='italic'>cool</span> words about your
-                  product
+                  Reviewing PRs much? ⏰
                 </h1>
                 <p className='mt-6 mx-auto max-w-2xl text-lg leading-8 text-gray-600 dark:text-white'>
-                  With some more exciting words about your product!
+                  An open source time tracker for developers.
                 </p>
                 <div className='mt-10 flex items-center justify-center gap-x-6'>
-                  <a
-                    href={DOCS_URL}
+                  <Link
+                    to='/timer'
                     className='rounded-md px-3.5 py-2.5 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-200 hover:ring-2 hover:ring-yellow-300 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:text-white'
                   >
-                    Get Started <span aria-hidden='true'>→</span>
-                  </a>
+                    Start Tracking <span aria-hidden='true'>→</span>
+                  </Link>
                 </div>
               </div>
               <div className='mt-14 flow-root sm:mt-14 '>

@@ -1,5 +1,5 @@
 import HttpError from '@wasp/core/HttpError.js';
-import type { DailyStats, GptResponse, User, PageViewSource, Task, File } from '@wasp/entities';
+import type { TimeEntry, DailyStats, GptResponse, User, PageViewSource, Task, File } from '@wasp/entities';
 import type {
   GetGptResponses,
   GetDailyStats,
@@ -7,6 +7,7 @@ import type {
   GetAllTasksByUser,
   GetAllFilesByUser,
   GetDownloadFileSignedURL,
+  GetAllTimeEntriesByUser
 } from '@wasp/queries/types';
 import { getDownloadFileSignedURLFromS3 } from './file-upload/s3Utils.js';
 
@@ -31,6 +32,26 @@ export const getGptResponses: GetGptResponses<void, GptResponse[]> = async (args
     },
   });
 };
+
+export const getAllTimeEntriesByUser: GetAllTimeEntriesByUser<void, TimeEntry[]> = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(401);
+  }
+  return context.entities.TimeEntry.findMany({
+    where: {
+      user: {
+        id: context.user.id,
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+}
+
+
+// -- OS stuff
 
 export const getAllTasksByUser: GetAllTasksByUser<void, Task[]> = async (_args, context) => {
   if (!context.user) {

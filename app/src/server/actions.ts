@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import fetch from 'node-fetch';
 import HttpError from '@wasp/core/HttpError.js';
-import type { User, Task, File } from '@wasp/entities';
+import type { User, Task, File, TimeEntry } from '@wasp/entities';
 import type { StripePaymentResult } from './types';
 import {
   GenerateGptResponse,
@@ -12,6 +12,8 @@ import {
   DeleteTask,
   UpdateTask,
   CreateFile,
+  CreateTimeEntry,
+  UpdateTimeEntry
 } from '@wasp/actions/types';
 import { fetchStripeCustomer, createStripeCheckoutSession } from './payments/stripeUtils.js';
 import { TierIds } from '@wasp/shared/constants.js';
@@ -225,6 +227,53 @@ export const generateGptResponse: GenerateGptResponse<GptPayload, string> = asyn
     throw new HttpError(statusCode, errorMessage);
   }
 };
+
+
+
+export const createTimeEntry: CreateTimeEntry<Pick<TimeEntry, 'description' | 'start'>, TimeEntry> =
+  async ({ description, start }, context) => {
+  if (!context.user) {
+    throw new HttpError(401);
+  }
+
+  const timeEntry = await context.entities.TimeEntry.create({
+    data: {
+      description,
+      start,
+      user: { connect: { id: context.user.id } },
+    }
+  })
+
+  return timeEntry
+}
+
+export const updateTimeEntry: UpdateTimeEntry<Partial<TimeEntry>, TimeEntry> =
+  async ({ id, description, start, stop }, context) => {
+
+  if (!context.user) {
+    throw new HttpError(401);
+  }
+
+  console.log('got id: ', id)
+
+  const timeEntry = await context.entities.TimeEntry.update({
+    where: {
+      id,
+    },
+    data: {
+      description,
+      start,
+      stop
+    },
+  });
+
+  return timeEntry;
+}
+
+
+
+
+// -- Old, Open SaaS stuff
 
 export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async ({ description }, context) => {
   if (!context.user) {
