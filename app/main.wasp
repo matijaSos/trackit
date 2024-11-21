@@ -1,482 +1,266 @@
-app SaaSTemplate {
+app OpenSaaS {
   wasp: {
-    version: "^0.11.8"
+    version: "^0.15.0"
   },
+
   title: "My Open SaaS App",
+
   head: [
         "<meta property='og:type' content='website' />",
-        "<meta property='og:url' content='https://opensaas.sh' />", 
+        "<meta property='og:title' content='My Open SaaS App' />",
+        "<meta property='og:url' content='https://opensaas.sh' />",
         "<meta property='og:description' content='I made a SaaS App. Buy my stuff.' />",
         "<meta property='og:image' content='https://opensaas.sh/public-banner.png' />",
-        "<meta name='twitter:image' content='https://opensaas.sh/public-banner.png' />", 
+        "<meta name='twitter:image' content='https://opensaas.sh/public-banner.png' />",
         "<meta name='twitter:image:width' content='800' />",
         "<meta name='twitter:image:height' content='400' />",
         "<meta name='twitter:card' content='summary_large_image' />",
-        // you can put your analytics scripts here
-        "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.js'></script>",
-        // plausible has script extension `script.local.js` for local development
-        "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>",
-        // google analytics only needs one script and will automatically detect if you are in dev mode 
-        "<!-- Google tag (gtag.js) --><script>...</script>"
+        // TODO: You can put your Plausible analytics scripts below (https://docs.opensaas.sh/guides/analytics/):
+        // NOTE: Plausible does not use Cookies, so you can simply add the scripts here.
+        // Google, on the other hand, does, so you must instead add the script dynamically
+        // via the Cookie Consent component after the user clicks the "Accept" cookies button.
+        "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.js'></script>",  // for production
+        "<script defer data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>",  // for development
   ],
+
   // 🔐 Auth out of the box! https://wasp-lang.dev/docs/auth/overview
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
-       gitHub: {},
-       google: {
-         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js",
-         configFn: import { config } from "@server/auth/google.js",
-       },
-       email: {
-         fromField: {
-           name: "TrackIt",
-           // make sure this address is the same you registered your SendGrid or MailGun account with!
-           email: "me@trackit.sh" 
-         },
-         emailVerification: {
-           clientRoute: EmailVerificationRoute,
-           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
-         },
-         passwordReset: {
-           clientRoute: PasswordResetRoute,
-           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
-         },
-       },
+      // NOTE: If you decide to not use email auth, make sure to also delete the related routes and pages below.
+      //   (RequestPasswordReset(Route|Page), PasswordReset(Route|Page), EmailVerification(Route|Page))
+      email: {
+        fromField: {
+          name: "TrackIt",
+          email: "welcome@trackit.sh"
+        },
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email-and-pass/emails",
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute,
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email-and-pass/emails",
+        },
+        userSignupFields: import { getEmailUserFields } from "@src/auth/userSignupFields",
+      },
+      google: {        
+        userSignupFields: import { getGoogleUserFields } from "@src/auth/userSignupFields",
+        configFn: import { getGoogleAuthConfig } from "@src/auth/userSignupFields",
+      },
+      gitHub: {
+        userSignupFields: import { getGitHubUserFields } from "@src/auth/userSignupFields",
+        configFn: import { getGitHubAuthConfig } from "@src/auth/userSignupFields",
+      },
+      // Uncomment to enable Discord Auth (check https://wasp-lang.dev/docs/auth/social-auth/discord for setup instructions):
+      // discord: {
+      //   userSignupFields: import { getDiscordUserFields } from "@src/auth/userSignupFields",
+      //   configFn: import { getDiscordAuthConfig } from "@src/auth/userSignupFields"
+      // }
     },
-    signup: {
-      additionalFields: import setAdditionalUserFields from "@server/auth/setAdditionalUserFields.js",
-    },
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/timer",
   },
-  db: { 
-    system: PostgreSQL,
+
+  db: {
+    // Run `wasp db seed` to seed the database with the seed functions below:
     seeds: [
-      import { devSeedUsers } from "@server/scripts/usersSeed.js",
+      // Populates the database with a bunch of fake users to work with during development.
+      import { seedMockUsers } from "@src/server/scripts/dbSeeds",
     ]
   },
+
   client: {
-    rootComponent: import App from "@client/App",
+    rootComponent: import App from "@src/client/App",
   },
+
   emailSender: {
-    provider: SendGrid,
+    // NOTE: "Dummy" provider is just for local development purposes.
+    //   Make sure to check the server logs for the email confirmation url (it will not be sent to an address)!
+    //   Once you are ready for production, switch to e.g. "SendGrid" or "Mailgun" providers. Check out https://docs.opensaas.sh/guides/email-sending/ .
+    provider: Dummy,
     defaultFrom: {
       name: "Open SaaS App",
-      // make sure this address is the same you registered your SendGrid or MailGun account with!
-      email: "me@example.com" 
+      // When using a real provider, e.g. SendGrid, you must use the same email address that you configured your account to send out emails with!
+      email: "me@example.com"
     },
   },
-  // add your dependencies here. the quickest way to find the latest version is `npm view <package-name> version`
-  dependencies: [
-    ("@internationalized/date", "^3.5.2"),
-    ("react-aria-components", "^1.1.1"),
-    ("luxon", "^3.4.4"),
-    ("@types/luxon", "^3.4.2"),
-    ("@headlessui/react", "1.7.13"),
-    ("@tailwindcss/forms", "^0.5.3"),
-    ("@tailwindcss/typography", "^0.5.7"),
-    ("react-icons", "4.11.0"),
-    ("node-fetch", "3.3.0"),
-    ("stripe", "11.15.0"),
-    ("react-hot-toast", "^2.4.1"),
-    ("react-apexcharts", "^1.4.1"),
-    ("apexcharts", "^3.41.0"),
-    ("headlessui", "^0.0.0"),
-    ("@faker-js/faker", "8.3.1"),
-    ("@google-analytics/data", "4.1.0"),
-    ("openai", "^4.24.1"),
-    ("prettier", "3.1.1"),
-    ("prettier-plugin-tailwindcss", "0.5.11"),
-    ("zod", "3.22.4"),
-    ("aws-sdk", "^2.1551.0")
-  ],
 }
-
-/* 💽 Wasp defines DB entities via Prisma Database Models: 
- * https://wasp-lang.dev/docs/data-model/entities
- */
-
-entity User {=psl
-  id                        Int             @id @default(autoincrement())
-  username                  String?         @unique
-  email                     String?         @unique
-  password                  String?
-  createdAt                 DateTime        @default(now())
-  lastActiveTimestamp       DateTime        @default(now())
-  isAdmin                   Boolean         @default(false)
-  isEmailVerified           Boolean         @default(false)
-  emailVerificationSentAt   DateTime?
-  passwordResetSentAt       DateTime?
-  stripeId                  String? 
-  checkoutSessionId         String?
-  hasPaid                   Boolean         @default(false)
-  subscriptionTier          String?
-  subscriptionStatus        String?
-  sendEmail                 Boolean         @default(false)
-  datePaid                  DateTime?
-  credits                   Int             @default(3)
-  gptResponses              GptResponse[]
-  externalAuthAssociations  SocialLogin[]
-  contactFormMessages       ContactFormMessage[]     
-  timeEntries               TimeEntry[]
-  tasks                     Task[]
-  files                     File[]
-psl=}
-
-entity SocialLogin {=psl
-  id                        String          @id @default(uuid())
-  provider                  String
-  providerId                String
-  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                    Int
-  createdAt                 DateTime        @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-
-entity TimeEntry {=psl
-  id                        String          @id @default(uuid())
-  description               String
-  start                     DateTime
-  stop                      DateTime?
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    Int
-  createdAt                 DateTime        @default(now())
-  updatedAt                 DateTime        @updatedAt
-psl=}
-
-
-
-
-
-/* Open SaaS stuff. */
-
-entity GptResponse {=psl
-  id                        String          @id @default(uuid())
-  content                   String
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    Int
-  createdAt                 DateTime        @default(now())
-  updatedAt                 DateTime        @updatedAt
-psl=}
-
-entity Task {=psl
-  id                        String          @id @default(uuid())
-  description               String
-  time                      String          @default("1")
-  isDone                    Boolean         @default(false)
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    Int
-  createdAt                 DateTime        @default(now())
-psl=}
-
-entity File {=psl
-  id                        String          @id @default(uuid())
-  name                      String
-  type                      String
-  key                       String
-  uploadUrl                 String
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    Int
-  createdAt                 DateTime        @default(now())
-psl=}
-
-// TODO: add functionality to allow users to send messages to admin
-// and make them accessible via the admin dashboard
-entity ContactFormMessage {=psl
-  id                        String          @id @default(uuid())
-  content                   String
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    Int
-  createdAt                 DateTime        @default(now())
-  isRead                    Boolean         @default(false)
-  repliedAt                 DateTime?       
-psl=}
-
-entity DailyStats {=psl 
-  id                               Int             @id @default(autoincrement())
-  date                             DateTime        @default(now()) @unique
-  totalViews                       Int             @default(0)
-  prevDayViewsChangePercent        String          @default("0")
-  userCount                        Int             @default(0)
-  paidUserCount                    Int             @default(0)
-  userDelta                        Int             @default(0)
-  paidUserDelta                    Int             @default(0)
-  totalRevenue                     Float             @default(0)
-  totalProfit                      Float             @default(0)
-  sources                          PageViewSource[]
-psl=}
-
-entity PageViewSource {=psl
-  date                     DateTime        @default(now())       
-  name                     String          
-  visitors                 Int             
-  dailyStats               DailyStats?     @relation(fields: [dailyStatsId], references: [id])
-  dailyStatsId             Int?
-  @@id([date, name])
-psl=}
-
-entity Logs {=psl
-  id                       Int             @id @default(autoincrement())
-  createdAt                DateTime        @default(now())
-  message                  String
-  level                    String
-psl=}
-
-/* 📡 These are the Wasp Routes (You can protect them easily w/ 'authRequired: true');
- * https://wasp-lang.dev/docs/tutorial/pages
- */
 
 route LandingPageRoute { path: "/", to: LandingPage }
 page LandingPage {
-  component: import LandingPage from "@client/landing-page/LandingPage"
+  component: import LandingPage from "@src/landing-page/LandingPage"
 }
 
+//#region Auth Pages
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/auth/LoginPage"
+  component: import Login from "@src/auth/LoginPage"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { Signup } from "@client/auth/SignupPage"
+  component: import { Signup } from "@src/auth/SignupPage"
 }
 
- route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
- page RequestPasswordResetPage {
-   component: import { RequestPasswordReset } from "@client/auth/RequestPasswordReset",
- }
-
- route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
- page PasswordResetPage {
-   component: import { PasswordReset } from "@client/auth/PasswordReset",
- }
-
- route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
- page EmailVerificationPage {
-   component: import { EmailVerification } from "@client/auth/EmailVerification",
- }
-
-route TimerRoute { path: "/timer", to: TimerPage }
-page TimerPage {
-  authRequired: true,
-  component: import TimerPage from "@client/app/TimerPage"
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
+page RequestPasswordResetPage {
+  component: import { RequestPasswordResetPage } from "@src/auth/email-and-pass/RequestPasswordResetPage",
 }
 
-route PricingPageRoute { path: "/pricing", to: PricingPage }
-page PricingPage {
-  component: import PricingPage from "@client/app/PricingPage"
+route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
+page PasswordResetPage {
+  component: import { PasswordResetPage } from "@src/auth/email-and-pass/PasswordResetPage",
 }
 
+route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
+page EmailVerificationPage {
+  component: import { EmailVerificationPage } from "@src/auth/email-and-pass/EmailVerificationPage",
+}
+//#endregion
+
+//#region User
 route AccountRoute { path: "/account", to: AccountPage }
 page AccountPage {
   authRequired: true,
-  component: import Account from "@client/app/AccountPage"
+  component: import Account from "@src/user/AccountPage"
+}
+
+query getPaginatedUsers {
+  fn: import { getPaginatedUsers } from "@src/user/operations",
+  entities: [User]
+}
+
+action updateCurrentUser {
+  fn: import { updateCurrentUser } from "@src/user/operations",
+  entities: [User]
+}
+
+action updateUserById {
+  fn: import { updateUserById } from "@src/user/operations",
+  entities: [User]
+}
+//#endregion
+
+//#region Demo AI App
+route TimerRoute { path: "/timer", to: TimerPage }
+page TimerPage {
+  authRequired: true,
+  component: import DemoAppPage from "@src/demo-ai-app/TimerPage"
+}
+
+action createTimeEntry {
+  fn: import { createTimeEntry } from "@src/demo-ai-app/operations",
+  entities: [TimeEntry]
+}
+
+query getAllTimeEntriesByUser {
+  fn: import { getAllTimeEntriesByUser } from "@src/demo-ai-app/operations",
+  entities: [TimeEntry]
+}
+
+action updateTimeEntry {
+  fn: import { updateTimeEntry } from "@src/demo-ai-app/operations",
+  entities: [TimeEntry]
+}
+
+// -------------------------- Open SaaS defined operations
+
+action generateGptResponse {
+  fn: import { generateGptResponse } from "@src/demo-ai-app/operations",
+  entities: [User, Task, GptResponse]
+}
+
+action createTask {
+  fn: import { createTask } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+
+action deleteTask {
+  fn: import { deleteTask } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+
+action updateTask {
+  fn: import { updateTask } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+
+query getGptResponses {
+  fn: import { getGptResponses } from "@src/demo-ai-app/operations",
+  entities: [User, GptResponse]
+}
+
+query getAllTasksByUser {
+  fn: import { getAllTasksByUser } from "@src/demo-ai-app/operations",
+  entities: [Task]
+}
+//#endregion
+
+//#region Payment
+route PricingPageRoute { path: "/pricing", to: PricingPage }
+page PricingPage {
+  component: import PricingPage from "@src/payment/PricingPage"
 }
 
 route CheckoutRoute { path: "/checkout", to: CheckoutPage }
 page CheckoutPage {
   authRequired: true,
-  component: import Checkout from "@client/app/CheckoutPage"
+  component: import Checkout from "@src/payment/CheckoutPage"
 }
 
+query getCustomerPortalUrl {
+  fn: import { getCustomerPortalUrl } from  "@src/payment/operations",
+  entities: [User]
+}
+
+action generateCheckoutSession {
+  fn: import { generateCheckoutSession } from "@src/payment/operations",
+  entities: [User]
+}
+
+api paymentsWebhook {
+  fn: import { paymentsWebhook } from "@src/payment/webhook",
+  entities: [User],
+  middlewareConfigFn: import { paymentsMiddlewareConfigFn } from "@src/payment/webhook",
+  httpRoute: (POST, "/payments-webhook")
+}
+//#endregion
+
+//#region File Upload
 route FileUploadRoute { path: "/file-upload", to: FileUploadPage }
 page FileUploadPage {
   authRequired: true,
-  component: import FileUpload from "@client/app/FileUploadPage"
-}
-
-route AdminRoute { path: "/admin", to: DashboardPage }
-page DashboardPage {
-  authRequired: true,
-  component: import Dashboard from "@client/admin/pages/DashboardPage"
-}
-
-route AdminUsersRoute { path: "/admin/users", to: AdminUsersPage }
-page AdminUsersPage {
-  authRequired: true,
-  component: import AdminUsers from "@client/admin/pages/Users"
-}
-
-route AdminSettingsRoute { path: "/admin/settings", to: AdminSettingsPage }
-page AdminSettingsPage {
-  authRequired: true,
-  component: import AdminSettings from "@client/admin/pages/Settings"
-}
-
-route AdminChartsRoute { path: "/admin/chart", to: AdminChartsPage }
-page AdminChartsPage {
-  authRequired: true,
-  component: import AdminCharts from "@client/admin/pages/Chart"
-}
-
-route AdminMessagesRoute { path: "/admin/messages", to: AdminMessagesPage }
-page AdminMessagesPage {
-  authRequired: true,
-  component: import AdminMessages from "@client/admin/pages/Messages"
-}
-
-route AdminFormElementsRoute { path: "/admin/forms/form-elements", to: AdminFormElementsPage }
-page AdminFormElementsPage {
-  authRequired: true,
-  component: import AdminForms from "@client/admin/pages/Form/FormElements"
-}
-
-route AdminFormLayoutsRoute { path: "/admin/forms/form-layouts", to: AdminFormLayoutsPage }
-page AdminFormLayoutsPage {
-  authRequired: true,
-  component: import AdminForms from "@client/admin/pages/Form/FormLayout"
-}
-
-route AdminCalendarRoute { path: "/admin/calendar", to: AdminCalendarPage }
-page AdminCalendarPage {
-  authRequired: true,
-  component: import AdminCalendar from "@client/admin/pages/Calendar"
-}
-
-route AdminUIAlertsRoute { path: "/admin/ui/alerts", to: AdminUIAlertsPage }
-page AdminUIAlertsPage {
-  authRequired: true,
-  component: import AdminUI from "@client/admin/pages/UiElements/Alerts"
-}
-
-route AdminUIButtonsRoute { path: "/admin/ui/buttons", to: AdminUIButtonsPage }
-page AdminUIButtonsPage {
-  authRequired: true,
-  component: import AdminUI from "@client/admin/pages/UiElements/Buttons"
-}
-
-/* ⛑ These are the Wasp Operations, which allow the client and server to interact:
- * https://wasp-lang.dev/docs/data-model/operations/overview
- */
-
-// 📝 Actions aka Mutations
-
-action generateGptResponse {
-  fn: import { generateGptResponse } from "@server/actions.js",
-  entities: [User, Task, GptResponse]
-}
-
-action createTimeEntry {
-  fn: import { createTimeEntry } from "@server/actions.js",
-  entities: [TimeEntry]
-}
-
-action updateTimeEntry {
-  fn: import { updateTimeEntry } from "@server/actions.js",
-  entities: [TimeEntry]
-}
-
-
-
-action createTask {
-  fn: import { createTask } from "@server/actions.js",
-  entities: [Task]
-}
-
-action deleteTask {
-  fn: import { deleteTask } from "@server/actions.js",
-  entities: [Task]
-}
-
-action updateTask {
-  fn: import { updateTask } from "@server/actions.js",
-  entities: [Task]
-}
-
-action stripePayment {
-  fn: import { stripePayment } from "@server/actions.js",
-  entities: [User]
-}
-
-action updateCurrentUser {
-  fn: import { updateCurrentUser } from "@server/actions.js",
-  entities: [User]
-}
-
-action updateUserById {
-  fn: import { updateUserById } from "@server/actions.js",
-  entities: [User]
+  component: import FileUpload from "@src/file-upload/FileUploadPage"
 }
 
 action createFile {
-  fn: import { createFile } from "@server/actions.js",
+  fn: import { createFile } from "@src/file-upload/operations",
   entities: [User, File]
 }
 
-
-// 📚 Queries
-
-query getGptResponses {
-  fn: import { getGptResponses } from "@server/queries.js",
-  entities: [User, GptResponse]
-}
-
-query getAllTimeEntriesByUser {
-  fn: import { getAllTimeEntriesByUser } from "@server/queries.js",
-  entities: [TimeEntry]
-}
-
-
-// -- OS stuff
-
-query getAllTasksByUser {
-  fn: import { getAllTasksByUser } from "@server/queries.js",
-  entities: [Task]
-}
-
 query getAllFilesByUser {
-  fn: import { getAllFilesByUser } from "@server/queries.js",
+  fn: import { getAllFilesByUser } from "@src/file-upload/operations",
   entities: [User, File]
 }
 
 query getDownloadFileSignedURL {
-  fn: import { getDownloadFileSignedURL } from "@server/queries.js",
+  fn: import { getDownloadFileSignedURL } from "@src/file-upload/operations",
   entities: [User, File]
 }
+//#endregion
 
+//#region Analytics
 query getDailyStats {
-  fn: import { getDailyStats } from "@server/queries.js",
+  fn: import { getDailyStats } from "@src/analytics/operations",
   entities: [User, DailyStats]
-}
-
-query getPaginatedUsers {
-  fn: import { getPaginatedUsers } from "@server/queries.js",
-  entities: [User]
-}
-
-/*
- * 📡 These are custom Wasp API Endpoints. Use them for callbacks, webhooks, etc.
- * https://wasp-lang.dev/docs/advanced/apis
- */ 
-
-api stripeWebhook {
-  fn: import { stripeWebhook } from "@server/webhooks/stripe.js",
-  entities: [User],
-  middlewareConfigFn: import { stripeMiddlewareFn } from "@server/webhooks/stripe.js",
-  httpRoute: (POST, "/stripe-webhook")
-}
-
-/* 🕵️‍♂️ These are the Wasp Jobs. Use them to set up recurring tasks and/or queues:
- * https://wasp-lang.dev/docs/advanced/jobs
- */
-
-job emailChecker {
-  executor: PgBoss,
-  perform: {
-    fn: import { checkAndQueueEmails } from "@server/workers/checkAndQueueEmails.js"
-  },
-  schedule: {
-    cron: "0 7 * * 1" // at 7:00 am every Monday
-  },
-  entities: [User]
 }
 
 job dailyStatsJob {
   executor: PgBoss,
   perform: {
-    fn: import { calculateDailyStats } from "@server/workers/calculateDailyStats.js"
+    fn: import { calculateDailyStats } from "@src/analytics/stats"
   },
   schedule: {
     cron: "0 * * * *" // every hour. useful in production
@@ -484,3 +268,84 @@ job dailyStatsJob {
   },
   entities: [User, DailyStats, Logs, PageViewSource]
 }
+//#endregion
+
+//#region Admin Dashboard
+route AdminRoute { path: "/admin", to: AnalyticsDashboardPage }
+page AnalyticsDashboardPage {
+  authRequired: true,
+  component: import AnalyticsDashboardPage from "@src/admin/dashboards/analytics/AnalyticsDashboardPage"
+}
+
+route AdminUsersRoute { path: "/admin/users", to: AdminUsersPage }
+page AdminUsersPage {
+  authRequired: true,
+  component: import AdminUsers from "@src/admin/dashboards/users/UsersDashboardPage"
+}
+
+route AdminSettingsRoute { path: "/admin/settings", to: AdminSettingsPage }
+page AdminSettingsPage {
+  authRequired: true,
+  component: import AdminSettings from "@src/admin/elements/settings/SettingsPage"
+}
+
+route AdminChartsRoute { path: "/admin/chart", to: AdminChartsPage }
+page AdminChartsPage {
+  authRequired: true,
+  component: import AdminCharts from "@src/admin/elements/charts/ChartsPage"
+}
+
+route AdminFormElementsRoute { path: "/admin/forms/form-elements", to: AdminFormElementsPage }
+page AdminFormElementsPage {
+  authRequired: true,
+  component: import AdminForms from "@src/admin/elements/forms/FormElementsPage"
+}
+
+route AdminFormLayoutsRoute { path: "/admin/forms/form-layouts", to: AdminFormLayoutsPage }
+page AdminFormLayoutsPage {
+  authRequired: true,
+  component: import AdminForms from "@src/admin/elements/forms/FormLayoutsPage"
+}
+
+route AdminCalendarRoute { path: "/admin/calendar", to: AdminCalendarPage }
+page AdminCalendarPage {
+  authRequired: true,
+  component: import AdminCalendar from "@src/admin/elements/calendar/CalendarPage"
+}
+
+route AdminUIAlertsRoute { path: "/admin/ui/alerts", to: AdminUIAlertsPage }
+page AdminUIAlertsPage {
+  authRequired: true,
+  component: import AdminUI from "@src/admin/elements/ui-elements/AlertsPage"
+}
+
+route AdminUIButtonsRoute { path: "/admin/ui/buttons", to: AdminUIButtonsPage }
+page AdminUIButtonsPage {
+  authRequired: true,
+  component: import AdminUI from "@src/admin/elements/ui-elements/ButtonsPage"
+}
+//#endregion
+
+//#region Contact Form Messages
+// TODO: 
+// add functionality to allow users to send messages to admin
+// and make them accessible via the admin dashboard
+route AdminMessagesRoute { path: "/admin/messages", to: AdminMessagesPage }
+page AdminMessagesPage {
+  authRequired: true,
+  component: import AdminMessages from "@src/messages/MessagesPage"
+}
+//#endregion
+
+//#region Newsletter
+job sendNewsletter {
+  executor: PgBoss,
+  perform: {
+    fn: import { checkAndQueueNewsletterEmails } from "@src/newsletter/sendNewsletter"
+  },
+  schedule: {
+    cron: "0 7 * * 1" // at 7:00 am every Monday
+  },
+  entities: [User]
+}
+//#endregion

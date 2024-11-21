@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "blog",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -10,11 +10,13 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.3.1",
-    "@astrojs/starlight": "^0.13.0",
-    "astro": "^3.2.3",
+    "@astrojs/check": "^0.6.0",
+    "@astrojs/starlight": "^0.22.2",
+    "@astrojs/starlight-tailwind": "^2.0.2",
+    "@astrojs/tailwind": "^5.1.0",
+    "astro": "^4.3.5",
     "sharp": "^0.32.5",
-    "starlight-blog": "^0.4.0",
-    "typescript": "^5.3.2"
+    "starlight-blog": "^0.7.1",
+    "typescript": "^5.4.5"
   }
 }

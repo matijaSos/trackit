@@ -1,8 +1,9 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
+const { resolveProjectPath } = require('wasp/dev');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
   darkMode: 'class',
   theme: {
     extend: {
@@ -247,5 +248,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('@tailwindcss/forms')],
+  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
