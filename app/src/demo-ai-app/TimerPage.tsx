@@ -127,6 +127,8 @@ export default function TimerPage() {
         // TODO(matija): the same here, toISODate() can return null
         const timeEntryDay = DateTime.fromJSDate(timeEntry.start).toISODate()
 
+        // TODO(matija): I don't have to get out of Luxon to do this comparison. I can just use
+        // hasSame(otherDT, 'day'), as in the code below.
         if (timeEntryDay === currentDay) {
           groupedByDayAndSortedDesc[groupedByDayAndSortedDesc.length - 1].entries.push(timeEntry)
         } else {
@@ -225,7 +227,7 @@ export default function TimerPage() {
             <div>
               {endedTimeEntriesGroupedByDayAndSortedDesc.map(({ day, entries }) =>
                 <>
-                  {/* TODO(matija): I had to to day! here, because it might be null, due to toISODate (look above). */}
+                  {/* TODO(matija): I had to put day! here, because it might be null, due to toISODate (look above). */}
                   <TimeEntriesForDay day={day!} timeEntries={entries} />
                 </>
               )}
@@ -321,7 +323,21 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   )
 
   async function handleStartStopChange() {
-    console.log('update start and stop times here!')
+    console.log('TODO: update start and stop times here!')
+
+    //console.log(timeEntry.start) // JS Date
+    //console.log(startDate) // Intl/adobe type
+
+    // Convert everything to Luxon types so I can compare
+    const timeEntryStartLx = DateTime.fromJSDate(timeEntry.start)
+    const startDateLx = DateTime.fromISO(startDate.toString())
+
+    console.log(timeEntryStartLx)
+    console.log(startDateLx)
+
+    if (!timeEntryStartLx.hasSame(startDateLx, 'day')) {
+      console.log('the date has changed, I should update')
+    }
   }
 
   async function handleOnBlur() {
