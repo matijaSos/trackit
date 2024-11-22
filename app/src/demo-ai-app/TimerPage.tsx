@@ -322,22 +322,39 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     parseDate(DateTime.fromJSDate(timeEntry.start).toISODate()!)
   )
 
+  const start = DateTime.fromJSDate(timeEntry.start)
+  const startMark = start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
+
+  // TODO(matija): why do I use 'n/a', why not null? Do I anywhere print this value?
+  let stopMark = 'n/a'
+  let durationMark = 'n/a'
+  if (timeEntry.stop) {
+    const stop = DateTime.fromJSDate(timeEntry.stop)
+
+    stopMark = stop.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
+    // TODO(matija): I have duplicated "hh:mm:ss" format around the code, unify that.
+    durationMark = stop.diff(start).toFormat('hh:mm:ss')
+  }
+
+  // TODO(matija): used by calendar, this should also be extracted with it.
+  const [calStartTime, setCalStartTime] = useState(startMark)
+  const [calEndTime, setCalEndTime] = useState(stopMark)
+
+
   async function handleStartStopChange() {
     console.log('TODO: update start and stop times here!')
-
-    //console.log(timeEntry.start) // JS Date
-    //console.log(startDate) // Intl/adobe type
 
     // Convert everything to Luxon types so I can compare
     const timeEntryStartLx = DateTime.fromJSDate(timeEntry.start)
     const startDateLx = DateTime.fromISO(startDate.toString())
 
-    console.log(timeEntryStartLx)
-    console.log(startDateLx)
 
     if (!timeEntryStartLx.hasSame(startDateLx, 'day')) {
       console.log('the date has changed, I should update')
     }
+
+    // Or should I just collect the state, do validation/normalization and save? Doesn't matter if it is the same
+    // as before, that can be an optimisation I add later (If nothing changed, do nothing).
   }
 
   async function handleOnBlur() {
@@ -364,17 +381,17 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     }
   }
 
-  const start = DateTime.fromJSDate(timeEntry.start)
-  const startMark = start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
+  function handleOnBlurCalStart() {
+    console.log('I should validate cal start!', calStartTime)
 
-  let stopMark = 'n/a'
-  let durationMark = 'n/a'
-  if (timeEntry.stop) {
-    const stop = DateTime.fromJSDate(timeEntry.stop)
+    // WIP
+    const normalizedTime = calStartTime.trim().replace(/\s+/g, " ").toUpperCase();
+    console.log(normalizedTime)
+    const newStartTime = DateTime.fromFormat(normalizedTime, 'h:mm a')
 
-    stopMark = stop.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
-    // TODO(matija): I have duplicated "hh:mm:ss" format around the code, unify that.
-    durationMark = stop.diff(start).toFormat('hh:mm:ss')
+    console.log(newStartTime.isValid)
+    console.log(newStartTime.toISO())
+    console.log(newStartTime.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' }))
   }
 
   return (
@@ -449,7 +466,9 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                     </label>
                     <input
                       className='w-full h-9 rounded-md'
-                      value={startMark}
+                      value={calStartTime}
+                      onChange={(e) => { setCalStartTime(e.target.value) }}
+                      onBlur={handleOnBlurCalStart}
                     />
                   </div>
 
@@ -459,7 +478,8 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                     </label>
                     <input
                       className='w-full h-9 rounded-md'
-                      value={stopMark}
+                      value={calEndTime}
+                      onChange={(e) => { setCalEndTime(e.target.value) }}
                     />
                   </div>
                 </div> {/* EOF start & stop time container */}
