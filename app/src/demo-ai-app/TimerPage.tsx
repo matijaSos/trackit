@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
+import { useState, useEffect, useMemo, useRef, Fragment, Dispatch, SetStateAction } from 'react';
 
 import {
   useQuery,
@@ -381,17 +381,18 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     }
   }
 
-  function handleOnBlurCalStart() {
-    console.log('I should validate cal start!', calStartTime)
+  type SetString = Dispatch<SetStateAction<string>>
 
-    // WIP
-    const normalizedTime = calStartTime.trim().replace(/\s+/g, " ").toUpperCase();
-    console.log(normalizedTime)
-    const newStartTime = DateTime.fromFormat(normalizedTime, 'h:mm a')
+  function handleOnBlurStartEndTime(timeInput: string, setTime: SetString, prevTime: string) {
+    const normalizedTimeInput = timeInput.trim().replace(/\s+/g, " ").toUpperCase();
+    // TODO(matija): I also want it to work if there is no AM/PM denominator.
+    const newTime = DateTime.fromFormat(normalizedTimeInput, 'h:mm a')
 
-    console.log(newStartTime.isValid)
-    console.log(newStartTime.toISO())
-    console.log(newStartTime.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' }))
+    if (newTime.isValid) {
+      setTime(newTime.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' }))
+    } else {
+      setTime(prevTime)
+    }
   }
 
   return (
@@ -468,7 +469,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                       className='w-full h-9 rounded-md'
                       value={calStartTime}
                       onChange={(e) => { setCalStartTime(e.target.value) }}
-                      onBlur={handleOnBlurCalStart}
+                      onBlur={() => handleOnBlurStartEndTime(calStartTime, setCalStartTime, startMark)}
                     />
                   </div>
 
@@ -480,6 +481,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                       className='w-full h-9 rounded-md'
                       value={calEndTime}
                       onChange={(e) => { setCalEndTime(e.target.value) }}
+                      onBlur={() => handleOnBlurStartEndTime(calEndTime, setCalEndTime, stopMark)}
                     />
                   </div>
                 </div> {/* EOF start & stop time container */}
