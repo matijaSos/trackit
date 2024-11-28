@@ -341,7 +341,8 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   const [calEndTime, setCalEndTime] = useState(stopMark)
 
 
-  async function handleStartStopChange() {
+  async function handleStartStopTimesSave() {
+    /*
     console.log('TODO: update start and stop times here!')
 
     // Convert everything to Luxon types so I can compare
@@ -352,9 +353,43 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     if (!timeEntryStartLx.hasSame(startDateLx, 'day')) {
       console.log('the date has changed, I should update')
     }
+    */
+    console.log('I want to save the updated start/end time')
+    console.log('new start date', startDate)
+    console.log('new start time', calStartTime)
+    console.log('new end time', calEndTime)
 
-    // Or should I just collect the state, do validation/normalization and save? Doesn't matter if it is the same
-    // as before, that can be an optimisation I add later (If nothing changed, do nothing).
+    // TODO(matija): what if end time is before the start time? That would mean it is next day.
+    const startDateNewLx = DateTime.fromISO(startDate.toString())
+    // TODO(matija): I have duplication in specifying this format.
+    const startTimeNewLx = DateTime.fromFormat(calStartTime, 'h:mm a') 
+    const startDateTimeNewLx = startDateNewLx.set({
+      hour: startTimeNewLx.hour,
+      minute: startTimeNewLx.minute,
+      second: startTimeNewLx.second,
+      millisecond: startTimeNewLx.millisecond
+    })
+
+    const endDateNewLx = timeEntry.stop && DateTime.fromJSDate(timeEntry.stop)
+    const endTimeNewLx = DateTime.fromFormat(calEndTime, 'h:mm a') 
+    const endDateTimeNewLx = endDateNewLx?.set({
+      hour: endTimeNewLx.hour,
+      minute: endTimeNewLx.minute,
+      second: endTimeNewLx.second,
+      millisecond: endTimeNewLx.millisecond
+    })
+
+    // WIP(matija): If stop > start, add one extra day to stop.
+
+    try {
+      await updateTimeEntry({
+        id: timeEntry.id,
+        start: startDateTimeNewLx.toJSDate(),
+        stop: endDateTimeNewLx?.toJSDate()
+      })
+    } catch (err: any) {
+      window.alert('Error: ' + (err.message || 'Something went wrong'))
+    }
   }
 
   async function handleOnBlur() {
@@ -524,7 +559,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                     hover:bg-yellow-600
                     transition duration-200 ease-out
                   `}
-                  onClick={handleStartStopChange}
+                  onClick={handleStartStopTimesSave}
                 >
                   Save
                 </Popover.Button>
