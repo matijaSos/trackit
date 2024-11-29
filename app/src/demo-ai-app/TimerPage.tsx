@@ -342,24 +342,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
 
 
   async function handleStartStopTimesSave() {
-    /*
-    console.log('TODO: update start and stop times here!')
-
-    // Convert everything to Luxon types so I can compare
-    const timeEntryStartLx = DateTime.fromJSDate(timeEntry.start)
-    const startDateLx = DateTime.fromISO(startDate.toString())
-
-
-    if (!timeEntryStartLx.hasSame(startDateLx, 'day')) {
-      console.log('the date has changed, I should update')
-    }
-    */
-    console.log('I want to save the updated start/end time')
-    console.log('new start date', startDate)
-    console.log('new start time', calStartTime)
-    console.log('new end time', calEndTime)
-
-    // TODO(matija): what if end time is before the start time? That would mean it is next day.
+    // Get new start time.
     const startDateNewLx = DateTime.fromISO(startDate.toString())
     // TODO(matija): I have duplication in specifying this format.
     const startTimeNewLx = DateTime.fromFormat(calStartTime, 'h:mm a') 
@@ -370,16 +353,26 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
       millisecond: startTimeNewLx.millisecond
     })
 
-    const endDateNewLx = timeEntry.stop && DateTime.fromJSDate(timeEntry.stop)
+    if (!timeEntry.stop) {
+      window.alert('Error: This should never happen, stop time should not be undefined')
+      return
+    }
+
+    // Get new end time.
+    // NOTE(matija): we always take the start date as a reference point. That way we preserve duration of the task
+    // as we move it across dates. IMO it is a more expected behavior.
+    const endDateNewLx = startDateNewLx
     const endTimeNewLx = DateTime.fromFormat(calEndTime, 'h:mm a') 
-    const endDateTimeNewLx = endDateNewLx?.set({
+    let endDateTimeNewLx = endDateNewLx?.set({
       hour: endTimeNewLx.hour,
       minute: endTimeNewLx.minute,
       second: endTimeNewLx.second,
       millisecond: endTimeNewLx.millisecond
     })
 
-    // WIP(matija): If stop > start, add one extra day to stop.
+    if (endDateTimeNewLx && (endDateTimeNewLx < startDateTimeNewLx)) {
+      endDateTimeNewLx = endDateTimeNewLx.plus({ days: 1 })
+    }
 
     try {
       await updateTimeEntry({
@@ -389,6 +382,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
       })
     } catch (err: any) {
       window.alert('Error: ' + (err.message || 'Something went wrong'))
+      // TODO(matija): should I revert back to the original time values? Probably yes
     }
   }
 
