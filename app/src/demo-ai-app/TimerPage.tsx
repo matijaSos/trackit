@@ -314,13 +314,12 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   // TODO(matija): this is for description - rename to "isDescriptionInputFocused"?
   const [isInputFocused, setIsInputFocused] = useState(false)
 
-  // Used by calendar - I should extract this from here.
-  const [startDate, setStartDate] = useState(
-    // TODO(matija): had to use '!' here, because toISODate apparently can return string | null.
-    // Although I don't get why it would return null since it is always invoked from the DateTime object,
-    // which should be valid since it is instantiated?
-    parseDate(DateTime.fromJSDate(timeEntry.start).toISODate()!)
-  )
+  // TODO(matija): Used by calendar - I should extract this from here.
+  // TODO(matija): had to use '!' here, because toISODate apparently can return string | null.
+  // Although I don't get why it would return null since it is always invoked from the DateTime object,
+  // which should be valid since it is instantiated?
+  const startDateIntl = parseDate(DateTime.fromJSDate(timeEntry.start).toISODate()!)
+  const [startDate, setStartDate] = useState(startDateIntl)
 
   const start = DateTime.fromJSDate(timeEntry.start)
   const startMark = start.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' })
@@ -382,7 +381,10 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
       })
     } catch (err: any) {
       window.alert('Error: ' + (err.message || 'Something went wrong'))
-      // TODO(matija): should I revert back to the original time values? Probably yes
+      // Reset form.
+      setStartDate(startDateIntl)
+      setCalStartTime(startMark)
+      setCalEndTime(stopMark)
     }
   }
 
