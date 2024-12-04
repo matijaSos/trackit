@@ -462,17 +462,31 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
           </div>
         )}
       </div>
-      <div className='flex flex-row gap-4 pr-5'>
+      <div className='pr-3'>
         <Popover
           className={`
             relative
-            text-stone-500 cursor-pointer
-            px-2 rounded-md
-            hover:bg-stone-100 hover:text-black
           `}
         >
-          <Popover.Button className={`focus:outline-none`}>
+          <Popover.Button
+            className={`
+              focus:outline-none
+              text-stone-500 cursor-pointer
+              px-2 rounded-md
+              hover:bg-stone-100 hover:text-black
+            `}
+          >
             {startMark} - {stopMark}
+          </Popover.Button>
+
+          <Popover.Button
+            className={`
+              tabular-nums ml-4
+              px-2 rounded-md
+              hover:bg-stone-100
+            `}
+          >
+            {durationMark}
           </Popover.Button>
 
           <Transition
@@ -564,9 +578,6 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             </Popover.Panel>
           </Transition>
         </Popover>
-        <div className='tabular-nums'>
-          {durationMark}
-        </div>
       </div>
     </div>
   )
