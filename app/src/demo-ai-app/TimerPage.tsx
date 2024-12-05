@@ -433,6 +433,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
         px-4 py-4 border-b
       `}
     >
+      {/* Time entry description */}
       <div className='pl-5 grow mr-2'>
         {isEditing ? (
           <input
@@ -462,6 +463,9 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
           </div>
         )}
       </div>
+      {/* EOF Time entry description */}
+
+      {/* Start/stop & duration */}
       <div className='pr-3'>
         <Popover
           className={`
@@ -481,12 +485,19 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
 
           <Popover.Button
             className={`
-              tabular-nums ml-4
+              focus:outline-none
+              ml-4
               px-2 rounded-md
               hover:bg-stone-100
             `}
           >
-            {durationMark}
+            <input
+              className={`
+                tabular-nums p-0 bg-transparent text-right
+                w-20 border-0
+              `}
+              value={durationMark}
+            />
           </Popover.Button>
 
           <Transition
@@ -579,6 +590,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
           </Transition>
         </Popover>
       </div>
+      {/* EOF Start/stop & duration */}
     </div>
   )
 }
