@@ -493,8 +493,10 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
           >
             <input
               className={`
+                w-[70px]
                 tabular-nums p-0 bg-transparent text-right
-                w-20 border-0
+                cursor-pointer
+                border-0
               `}
               value={durationMark}
             />
