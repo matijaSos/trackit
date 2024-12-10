@@ -335,6 +335,12 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     durationMark = stop.diff(start).toFormat('hh:mm:ss')
   }
 
+  // Duration input state
+  const [duration, setDuration] = useState(durationMark)
+  const durationInputRef = useRef<HTMLInputElement>(null)
+
+  const popoverButtonRef = useRef<HTMLButtonElement>(null)
+
   // TODO(matija): used by calendar, this should also be extracted with it.
   const [calStartTime, setCalStartTime] = useState(startMark)
   const [calEndTime, setCalEndTime] = useState(stopMark)
@@ -426,6 +432,19 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     }
   }
 
+  function handleOnDurationClick() {
+    // NOTE(matija): There can be only one <Popover.Button> outside of Popover Panel, so I had
+    // to do it this way (have a "regular" button which on click simulates slick on the original
+    // Popover.Button).
+    //
+    // Another approach could be to have two separate Popover panels, and then each would spawn their
+    // own calendar component. I'm not sure whether one approach is better than another.
+    popoverButtonRef.current?.click()
+    // When popover opens, the duration input gets unfocused. We want it to be in focus so the
+    // user can start typing straight away, so we have to do it manually.
+    durationInputRef.current?.focus()
+  }
+
   return (
     <div
       className={`
@@ -473,6 +492,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
           `}
         >
           <Popover.Button
+            ref={popoverButtonRef}
             className={`
               focus:outline-none
               text-stone-500 cursor-pointer
@@ -483,24 +503,27 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             {startMark} - {stopMark}
           </Popover.Button>
 
-          <Popover.Button
+          <button
+            onClick={handleOnDurationClick}
             className={`
               focus:outline-none
               ml-4
-              px-2 rounded-md
+              px-2 py-1 rounded-md
               hover:bg-stone-100
             `}
           >
             <input
+              ref={durationInputRef}
               className={`
                 w-[70px]
                 tabular-nums p-0 bg-transparent text-right
                 cursor-pointer
                 border-0
               `}
-              value={durationMark}
+              value={duration}
+              onChange={e => setDuration(e.target.value)}
             />
-          </Popover.Button>
+          </button>
 
           <Transition
             as={Fragment}
