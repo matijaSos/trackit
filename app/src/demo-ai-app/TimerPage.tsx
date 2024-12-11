@@ -440,9 +440,10 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     // Another approach could be to have two separate Popover panels, and then each would spawn their
     // own calendar component. I'm not sure whether one approach is better than another.
     popoverButtonRef.current?.click()
-    // When popover opens, the duration input gets unfocused. We want it to be in focus so the
-    // user can start typing straight away, so we have to do it manually.
+    // When popover opens, the duration input gets unfocused. We want it to be in focus, and have
+    // all the text selected so the user can start typing straight away, so we have to do it manually.
     durationInputRef.current?.focus()
+    durationInputRef.current?.select()
   }
 
   return (
@@ -508,17 +509,20 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             className={`
               focus:outline-none
               ml-4
-              px-2 py-1 rounded-md
-              hover:bg-stone-100
+              rounded-md
+              border-0
             `}
           >
             <input
               ref={durationInputRef}
               className={`
-                w-[70px]
+                w-[86px]
                 tabular-nums p-0 bg-transparent text-right
                 cursor-pointer
-                border-0
+                px-2
+                border-0 rounded-md
+                hover:bg-stone-100
+                focus:ring-1 focus:ring-stone-300 focus:bg-transparent focus:ring-offset-4
               `}
               value={duration}
               onChange={e => setDuration(e.target.value)}
