@@ -345,6 +345,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   const [calStartTime, setCalStartTime] = useState(startMark)
   const [calEndTime, setCalEndTime] = useState(stopMark)
 
+  const [isTimeBeingEdited, setIsTimeBeingEdited] = useState(false)
 
   async function handleStartStopTimesSave() {
     // Get new start time.
@@ -432,16 +433,9 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     }
   }
 
-  function handleOnDurationClick() {
-    // NOTE(matija): There can be only one <Popover.Button> outside of Popover Panel, so I had
-    // to do it this way (have a "regular" button which on click simulates slick on the original
-    // Popover.Button).
-    //
-    // Another approach could be to have two separate Popover panels, and then each would spawn their
-    // own calendar component. I'm not sure whether one approach is better than another.
-    popoverButtonRef.current?.click()
-    // When popover opens, the duration input gets unfocused. We want it to be in focus, and have
-    // all the text selected so the user can start typing straight away, so we have to do it manually.
+  function handleAfterPopoverEnter() {
+    setIsTimeBeingEdited(true)
+
     durationInputRef.current?.focus()
     durationInputRef.current?.select()
   }
@@ -492,8 +486,9 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             relative
           `}
         >
-          <Popover.Button
-            ref={popoverButtonRef}
+          <button
+            onClick={() => popoverButtonRef.current?.click()}
+            disabled={isTimeBeingEdited}
             className={`
               focus:outline-none
               text-stone-500 cursor-pointer
@@ -502,10 +497,11 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             `}
           >
             {startMark} - {stopMark}
-          </Popover.Button>
+          </button>
 
-          <button
-            onClick={handleOnDurationClick}
+          <Popover.Button
+            ref={popoverButtonRef}
+            disabled={isTimeBeingEdited}
             className={`
               focus:outline-none
               ml-4
@@ -527,7 +523,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
               value={duration}
               onChange={e => setDuration(e.target.value)}
             />
-          </button>
+          </Popover.Button>
 
           <Transition
             as={Fragment}
@@ -537,6 +533,8 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             leave="transition ease-in duration-150"
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
+            afterEnter={handleAfterPopoverEnter}
+            afterLeave={() => setIsTimeBeingEdited(false)}
           >
             <Popover.Panel className='absolute mt-2 z-10 left-1/2 -translate-x-1/2'>
               <div
