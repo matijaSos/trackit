@@ -522,7 +522,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                 px-2
                 border-0 rounded-md
                 hover:bg-stone-100
-                focus:ring-1 focus:ring-stone-300 focus:bg-transparent focus:ring-offset-4
+                focus:ring-1 focus:ring-stone-200 focus:bg-transparent focus:ring-offset-4
               `}
               value={duration}
               onChange={e => setDuration(e.target.value)}
