@@ -141,7 +141,6 @@ export default function TimerPage() {
     [timeEntries]
   )
 
-
   // TODO(matija): tried to create Duration object directly but had some type errors.
   let timeElapsedFormatted = '00:00:00'
   if (startTime != null && now != null) {
