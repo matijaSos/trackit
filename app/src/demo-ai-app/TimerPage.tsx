@@ -350,7 +350,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     // Get new start time.
     const startDateNewLx = DateTime.fromISO(startDate.toString())
     // TODO(matija): I have duplication in specifying this format.
-    const startTimeNewLx = DateTime.fromFormat(calStartTime, 'h:mm a') 
+    const startTimeNewLx = DateTime.fromFormat(calStartTime, 'h:mm a')
     const startDateTimeNewLx = startDateNewLx.set({
       hour: startTimeNewLx.hour,
       minute: startTimeNewLx.minute,
@@ -367,7 +367,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     // NOTE(matija): we always take the start date as a reference point. That way we preserve duration of the task
     // as we move it across dates. IMO it is a more expected behavior.
     const endDateNewLx = startDateNewLx
-    const endTimeNewLx = DateTime.fromFormat(calEndTime, 'h:mm a') 
+    const endTimeNewLx = DateTime.fromFormat(calEndTime, 'h:mm a')
     let endDateTimeNewLx = endDateNewLx?.set({
       hour: endTimeNewLx.hour,
       minute: endTimeNewLx.minute,
@@ -430,6 +430,42 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     } else {
       setTime(prevTime)
     }
+  }
+
+  // TODO(matija): decide if I'm providing everything as args, or not. Since I need to look both
+  // at start and end times every time (no matter which one was updated), it might be a lot of
+  // args to pass. On the other hand, I don't like referring to much to the "global" vars.
+  function handleOnBlurStartTime(
+    startTimeNewVal: string,
+    startTimePrevVal: string,
+    setCalStartTime: SetString) {
+
+    // Removes extra spaces, makes everything caps lock.
+    const normalizedTimeInput = startTimeNewVal.trim().replace(/\s+/g, " ").toUpperCase();
+    // TODO(matija): I also want it to work if there is no AM/PM denominator.
+    const newTimeLx = DateTime.fromFormat(normalizedTimeInput, 'h:mm a')
+
+    if (!newTimeLx.isValid) {
+      setCalStartTime(startTimePrevVal)
+      return
+    }
+    setCalStartTime(newTimeLx.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' }))
+
+    // We have a valid new time - let's try to save it to the db now.
+    //
+    const startDateNewLx = DateTime.fromISO(startDate.toString())
+    const startDateTimeNewLx = startDateNewLx.set({
+      hour: newTimeLx.hour,
+      minute: newTimeLx.minute,
+      second: newTimeLx.second,
+      millisecond: newTimeLx.millisecond
+    })
+
+    // TODO(matija): now also get the end time.
+
+    // Check if new start time is ahead of the end time - that means I have to bump the end time for 
+    // one day ahead.
+
   }
 
   function handleAfterPopoverEnter() {
