@@ -421,6 +421,9 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
   type SetString = Dispatch<SetStateAction<string>>
 
   function handleOnBlurStartEndTime(timeInput: string, setTime: SetString, prevTime: string) {
+    // This method is simply doing input field validation on blur. It doesn't do any saving to the
+    // database.
+
     const normalizedTimeInput = timeInput.trim().replace(/\s+/g, " ").toUpperCase();
     // TODO(matija): I also want it to work if there is no AM/PM denominator.
     const newTime = DateTime.fromFormat(normalizedTimeInput, 'h:mm a')
@@ -440,6 +443,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     startTimePrevVal: string,
     setCalStartTime: SetString) {
 
+    // TODO(matija): this should be extracted in a function, I will use it in other places, too.
     // Removes extra spaces, makes everything caps lock.
     const normalizedTimeInput = startTimeNewVal.trim().replace(/\s+/g, " ").toUpperCase();
     // TODO(matija): I also want it to work if there is no AM/PM denominator.
