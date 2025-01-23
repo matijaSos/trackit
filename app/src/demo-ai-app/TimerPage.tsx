@@ -435,28 +435,21 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
     }
   }
 
-  // TODO(matija): decide if I'm providing everything as args, or not. Since I need to look both
-  // at start and end times every time (no matter which one was updated), it might be a lot of
-  // args to pass. On the other hand, I don't like referring to much to the "global" vars.
-  function handleOnBlurStartTime(
-    startTimeNewVal: string,
-    startTimePrevVal: string,
-    setCalStartTime: SetString) {
-
+  function handleOnBlurStartTime() {
     // TODO(matija): this should be extracted in a function, I will use it in other places, too.
     // Removes extra spaces, makes everything caps lock.
-    const normalizedTimeInput = startTimeNewVal.trim().replace(/\s+/g, " ").toUpperCase();
+    const normalizedTimeInput = calStartTime.trim().replace(/\s+/g, " ").toUpperCase();
     // TODO(matija): I also want it to work if there is no AM/PM denominator.
     const newTimeLx = DateTime.fromFormat(normalizedTimeInput, 'h:mm a')
 
+    // If time input is invalid (e.g. user wrote some gibberish), revert to the previous value.
     if (!newTimeLx.isValid) {
-      setCalStartTime(startTimePrevVal)
+      setCalStartTime(startMark)
       return
     }
     setCalStartTime(newTimeLx.toLocaleString(DateTime.TIME_SIMPLE, { locale: 'en-US' }))
 
-    // We have a valid new time - let's try to save it to the db now.
-    //
+    // We have a valid new time - now let's get a full datetime.
     const startDateNewLx = DateTime.fromISO(startDate.toString())
     const startDateTimeNewLx = startDateNewLx.set({
       hour: newTimeLx.hour,
@@ -465,11 +458,25 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
       millisecond: newTimeLx.millisecond
     })
 
-    // TODO(matija): now also get the end time.
+    // Get the end datetime.
+    const endDateNewLx = DateTime.fromISO(startDate.toString())
+    // NOTE(matija): this should never fail, since end time hasn't been touched.
+    const endTimeNewLx = DateTime.fromFormat(calEndTime, 'h:mm a')
+    let endDateTimeNewLx = endDateNewLx?.set({
+      hour: endTimeNewLx.hour,
+      minute: endTimeNewLx.minute,
+      second: endTimeNewLx.second,
+      millisecond: endTimeNewLx.millisecond
+    })
 
     // Check if new start time is ahead of the end time - that means I have to bump the end time for 
     // one day ahead.
+    if (endDateTimeNewLx && (endDateTimeNewLx < startDateTimeNewLx)) {
+      endDateTimeNewLx = endDateTimeNewLx.plus({ days: 1 })
+    }
 
+    // Update duration state var.
+    setDuration(endDateTimeNewLx.diff(startDateTimeNewLx).toFormat('hh:mm:ss'))
   }
 
   function handleAfterPopoverEnter() {
@@ -591,7 +598,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                       className='w-full h-9 rounded-md'
                       value={calStartTime}
                       onChange={(e) => { setCalStartTime(e.target.value) }}
-                      onBlur={() => handleOnBlurStartEndTime(calStartTime, setCalStartTime, startMark)}
+                      onBlur={handleOnBlurStartTime}
                     />
                   </div>
 
