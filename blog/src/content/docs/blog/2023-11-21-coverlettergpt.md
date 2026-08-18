@@ -2,6 +2,12 @@
 title: How I Built & Grew CoverLetterGPT to 5,000 Users and $200 MRR
 date: 2023-11-21
 tags: ["indiehacker", "saas", "sideproject"] 
+subtitle: A guide to building a profitable, open-source side-project
+hideBannerImage: false # Banner images stored in public/banner-images/ are automatically used as cover images and social media preview images (og:image) for each blog post.
+authors:
+  - name: vince
+    title: Dev Rel @ Wasp
+    url: https://wasp.sh
 ---
 ## Hey, I’m Vince…
 
@@ -38,15 +44,15 @@ It also lets you save and manage your cover letters per each job, making it easy
 
 CoverLetterGPT is entirely open-source, so you can [check out the code](https://github.com/vincanger/coverlettergpt), fork it, learn from it, make your own, submit a PR (I’d love you forever if you did 🙂)… whatever!
 
-I built it using the [Wasp full-stack framework](https://wasp-lang.dev) which allowed me to ship it about 10x faster. 
+I built it using the [Wasp full-stack framework](https://wasp.sh) which allowed me to ship it about 10x faster. 
 
 Why? 
 
-Because [Wasp](https://wasp-lang.dev) as a framework allows you to describe your app’s core features in a `main.wasp` config file. Then it continually compiles and “glues” these features into a React-ExpressJS-Prisma full-stack app for you. 
+Because [Wasp](https://wasp.sh) as a framework allows you to describe your app’s core features in a `main.wasp` config file. Then it continually compiles and “glues” these features into a React-ExpressJS-Prisma full-stack app for you. 
 
 All you have to focus on is writing the client and server-side logic, and Wasp will do the boring stuff for you, like authentication & authorization, server config, email sending, and cron jobs. 
 
-BTW, [Wasp](https://wasp-lang.dev) is open-source and free and you can help the project out a ton by starring the repo on GitHub: [https://www.github.com/wasp-lang/wasp](https://www.github.com/wasp-lang/wasp) 🙏
+BTW, [Wasp](https://wasp.sh) is open-source and free and you can help the project out a ton by starring the repo on GitHub: [https://www.github.com/wasp-lang/wasp](https://www.github.com/wasp-lang/wasp) 🙏
 
 ![https://media1.giphy.com/media/ZfK4cXKJTTay1Ava29/giphy.gif?cid=7941fdc6pmqo30ll0e4rzdiisbtagx97sx5t0znx4lk0auju&ep=v1_gifs_search&rid=giphy.gif&ct=g](https://media1.giphy.com/media/ZfK4cXKJTTay1Ava29/giphy.gif?cid=7941fdc6pmqo30ll0e4rzdiisbtagx97sx5t0znx4lk0auju&ep=v1_gifs_search&rid=giphy.gif&ct=g)
 

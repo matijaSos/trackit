@@ -1,0 +1,47 @@
+---
+/**
+ * Overriden component, for more info:
+ * @see {@link https://starlight.astro.build/guides/overriding-components/}
+ * @see {@link https://starlight.astro.build/reference/overrides/#pagetitle}
+ */
+
+import { Image } from "astro:assets";
+import {
+  BANNER_PATH,
+  checkBannerImageExists,
+  getBannerImageFilename,
+} from "./imagePaths";
+
+const { id, entry } = Astro.locals.starlightRoute;
+const { title, subtitle, hideBannerImage } = entry.data;
+const bannerImageFileName = getBannerImageFilename({ path: id });
+const imageExists = checkBannerImageExists({ bannerImageFileName });
+---
+
+<h1
+  id="_top"
+  class="my-4 text-(length:--sl-text-h1) leading-(--sl-line-height-headings) font-semibold text-(--sl-color-white)"
+>
+  {title}
+</h1>
+{
+  subtitle && (
+    <p class="my-2 text-(length:--sl-text-h4) text-(--sl-color-gray-2)">
+      {subtitle}
+    </p>
+  )
+}
+{
+  imageExists && (
+    <div class="my-4 w-full max-w-200">
+      <Image
+        src={`${BANNER_PATH}/${bannerImageFileName}`}
+        loading="eager"
+        alt={title}
+        width="50"
+        height="50"
+        class={!hideBannerImage ? "block h-auto w-full rounded-lg" : "hidden"}
+      />
+    </div>
+  )
+}

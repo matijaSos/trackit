@@ -1,24 +1,23 @@
-import { Link } from 'react-router-dom';
+import { Link as WaspRouterLink, routes } from "wasp/client/router";
 interface BreadcrumbProps {
   pageName: string;
 }
-const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
+export function Breadcrumb({ pageName }: BreadcrumbProps) {
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+      <h2 className="text-title-md2 text-foreground font-semibold">
         {pageName}
       </h2>
 
       <nav>
-        <ol className="flex items-center gap-2">
+        <ul className="flex items-center gap-1">
           <li>
-            <Link to="/">Dashboard /</Link>
+            <WaspRouterLink to={routes.AdminRoute.to}>Dashboard</WaspRouterLink>
           </li>
-          <li className="text-primary">{pageName}</li>
-        </ol>
+          <li>/</li>
+          <li className="font-medium">{pageName}</li>
+        </ul>
       </nav>
     </div>
   );
-};
-
-export default Breadcrumb;
+}
