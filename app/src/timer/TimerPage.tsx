@@ -162,7 +162,7 @@ export function TimerPage() {
       <div
         className={`
           px-6 lg:px-8
-          bg-amber-100 shadow-lg
+          bg-card-subtle text-card-subtle-foreground shadow-lg
           flex flex-col
         `}
       >
@@ -229,7 +229,7 @@ export function TimerPage() {
               )}
             </div>
           ) : ( // User hasn't created any time entries yet.
-            <div className='text-stone-500 text-center'>Better start hacking...</div>
+            <div className='text-muted-foreground text-center'>Better start hacking...</div>
           ))
         }
       </div> {/* EOF time entries */}
@@ -279,7 +279,7 @@ function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: Tim
   return (
     <div
       className={`
-        mb-8 bg-white
+        mb-8 bg-card text-card-foreground
         shadow-[0_1px_3px_0_rgba(0,0,0,0.08)]
       `}
     >
@@ -515,7 +515,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             {description.length > 0 ? (
               <span>{description}</span>
             ) : (
-              <span className='text-stone-500 italic'>No description</span>
+              <span className='text-muted-foreground italic'>No description</span>
             )}
           </div>
         )}
@@ -534,9 +534,9 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             disabled={isTimeBeingEdited}
             className={`
               focus:outline-none
-              text-stone-500 cursor-pointer
+              text-muted-foreground cursor-pointer
               px-2 rounded-md
-              hover:bg-stone-100 hover:text-black
+              hover:bg-muted hover:text-foreground
             `}
           >
             {startMark} - {stopMark}
@@ -560,8 +560,8 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                 cursor-pointer
                 px-2
                 border-0 rounded-md
-                hover:bg-stone-100
-                focus:ring-1 focus:ring-stone-200 focus:bg-transparent focus:ring-offset-4
+                hover:bg-muted
+                focus:ring-1 focus:ring-ring focus:bg-transparent focus:ring-offset-4
               `}
               value={duration}
               onChange={e => setDuration(e.target.value)}
@@ -582,7 +582,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
             <PopoverPanel className='absolute mt-2 z-10 left-1/2 -translate-x-1/2'>
               <div
                 className={`
-                  bg-white rounded-lg shadow-lg p-7 ring-1 ring-black/5
+                  bg-popover text-popover-foreground rounded-lg shadow-lg p-7 ring-1 ring-border
               `}
               >
                 {/* Start & stop time container */}
@@ -592,7 +592,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                       <span>Start</span>
                     </label>
                     <input
-                      className='w-full h-9 rounded-md'
+                      className='w-full h-9 rounded-md bg-background text-foreground'
                       value={calStartTime}
                       onChange={(e) => { setCalStartTime(e.target.value) }}
                       onBlur={handleOnBlurStartTime}
@@ -604,7 +604,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                       <span>Stop</span>
                     </label>
                     <input
-                      className='w-full h-9 rounded-md'
+                      className='w-full h-9 rounded-md bg-background text-foreground'
                       value={calEndTime}
                       onChange={(e) => { setCalEndTime(e.target.value) }}
                       onBlur={() => handleOnBlurStartEndTime(calEndTime, setCalEndTime, stopMark)}
@@ -634,7 +634,7 @@ function TimeEntryAsRow({ timeEntry }: { timeEntry: TimeEntry }) {
                         className={`
                           w-9 h-9 rounded-full outline-none
                           flex items-center justify-center
-                          hover:bg-gray-100
+                          hover:bg-muted
                           data-[selected]:bg-yellow-500 data-[selected]:text-white
                         `}
                       />
@@ -672,7 +672,7 @@ function CalendarNextPrevMonthButton(props: ButtonProps) {
       className={`
         w-9 h-9 bg-transparent rounded-full
         flex items-center justify-center
-        hover:bg-gray-100
+        hover:bg-muted
       `}
     />
   )
