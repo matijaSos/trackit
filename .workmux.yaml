@@ -1,0 +1,22 @@
+panes:
+  # Left: agent (claude), full height.
+  - command: <agent>
+  # Top-right: your shell (gets the cursor).
+  - split: horizontal
+    focus: true
+  # Bottom-right: dev server log strip. Ctrl-b z zooms it fullscreen.
+  - command: cd app && wasp start
+    name: dev
+    split: vertical
+    size: 20
+
+# Layout note: workmux splits each new pane from the previously-created one,
+# so a full-height pane on one side + a stacked pair on the other is only
+# expressible with the stacked pair on the RIGHT (as above). To instead get
+# shell+dev stacked on the LEFT with the agent full-height on the right, drop
+# the dev pane here and split it off your shell by hand:
+#   dev() { tmux split-window -v -l 20 -c "$PWD/app" "wasp start; exec $SHELL"; }
+#
+# The dev DB is deliberately NOT a pane. Run it once, detached:
+#   cd app && nohup wasp db start > /tmp/trackit-db.log 2>&1 &
+# It is shared machine-wide; a per-worktree pane/hook would fight over port 5432.

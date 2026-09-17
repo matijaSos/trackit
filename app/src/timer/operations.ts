@@ -52,16 +52,26 @@ export const updateTimeEntry: UpdateTimeEntry<
     throw new HttpError(401);
   }
 
-  const timeEntry = await context.entities.TimeEntry.update({
-    where: {
-      id,
-    },
-    data: {
-      description,
-      start,
-      stop,
-    },
-  });
+  try {
+    const timeEntry = await context.entities.TimeEntry.update({
+      where: {
+        id,
+        userId: context.user.id, // User can edit only their own time entries.
+      },
+      data: {
+        description,
+        start,
+        stop,
+      },
+    });
 
-  return timeEntry;
+    return timeEntry;
+  } catch (err: any) {
+    // Prisma throws P2025 when no row matches the where - either the entry
+    // doesn't exist or it belongs to another user. Either way, a 404 is right.
+    if (err.code === "P2025") {
+      throw new HttpError(404, "Time entry not found");
+    }
+    throw err;
+  }
 };
