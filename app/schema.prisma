@@ -40,6 +40,8 @@ model TimeEntry {
   updatedAt                 DateTime        @updatedAt
 }
 
+// -------------------- Open SaaS models --------------------- //
+
 model GptResponse {
   id                        String          @id @default(uuid())
   createdAt                 DateTime        @default(now())
