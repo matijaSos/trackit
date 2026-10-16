@@ -19,7 +19,7 @@ import { userSpec } from "./src/user/user.wasp";
 
 export default app({
   name: "TrackIt",
-  wasp: { version: "^0.25.0" },
+  wasp: { version: "^0.26.0" },
   title: "TrackIt",
   head,
   auth: authConfig,
