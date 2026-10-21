@@ -21,7 +21,12 @@ import type {
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { parseDate } from '@internationalized/date'
 
+import { CalendarView } from './calendar/CalendarView'
+
+type TimerView = 'list' | 'calendar'
+
 export function TimerPage() {
+  const [view, setView] = useState<TimerView>('list')
   const { data: timeEntries, isLoading: isTimeEntriesLoading } =
     useQuery(getAllTimeEntriesByUser);
 
@@ -217,10 +222,18 @@ export function TimerPage() {
         </div> {/* EOF timer bar container */}
       </div> {/* EOF outer wrapper of the timer bar */}
 
-      {/* Ended time entries */}
-      <div className='mt-8'>
+      {/* List/Calendar view toggle */}
+      <div className='mt-8 flex flex-row justify-end'>
+        <ViewToggle view={view} onViewChange={setView} />
+      </div>
+
+      {/* Area below the timer bar, switched by the view toggle */}
+      <div className='mt-4'>
         {isTimeEntriesLoading && <div>Loading stuff...</div>}
-        {endedTimeEntriesGroupedByDayAndSortedDesc &&
+        {view === 'calendar' ? (
+          timeEntries && <CalendarView timeEntries={timeEntries} />
+        ) : (
+          endedTimeEntriesGroupedByDayAndSortedDesc &&
           (endedTimeEntriesGroupedByDayAndSortedDesc.length > 0 ? (
             <div>
               {endedTimeEntriesGroupedByDayAndSortedDesc.map(({ day, entries }) =>
@@ -231,11 +244,38 @@ export function TimerPage() {
           ) : ( // User hasn't created any time entries yet.
             <div className='text-muted-foreground text-center'>Better start hacking...</div>
           ))
-        }
-      </div> {/* EOF time entries */}
+        )}
+      </div> {/* EOF area below the stopwatch bar */}
 
     </div >
   );
+}
+
+function ViewToggle({ view, onViewChange }: { view: TimerView, onViewChange: (view: TimerView) => void }) {
+  const options: { value: TimerView, label: string }[] = [
+    { value: 'list', label: 'List' },
+    { value: 'calendar', label: 'Calendar' },
+  ]
+
+  return (
+    <div className='flex flex-row rounded-md bg-muted p-0.5'>
+      {options.map(({ value, label }) => (
+        <button
+          key={value}
+          onClick={() => onViewChange(value)}
+          className={`
+            px-3 py-1 rounded text-sm font-semibold
+            transition duration-200 ease-out
+            ${view === value
+              ? 'bg-card text-card-foreground shadow'
+              : 'text-muted-foreground hover:text-foreground'}
+          `}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 function TimeEntriesForDay({ day, timeEntries }: { day: string, timeEntries: TimeEntry[] }) {
